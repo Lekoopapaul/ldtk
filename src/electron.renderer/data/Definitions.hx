@@ -7,6 +7,7 @@ class Definitions {
 
 	public var layers: Array<data.def.LayerDef> = [];
 	public var entities: Array<data.def.EntityDef> = [];
+	public var structs: Array<data.def.StructDef> = [];
 	public var tilesets: Array<data.def.TilesetDef> = [];
 	public var enums: Array<data.def.EnumDef> = [];
 	public var externalEnums: Array<data.def.EnumDef> = [];
@@ -20,6 +21,9 @@ class Definitions {
 
 	var fastEntityAccessInt : Map<Int, data.def.EntityDef> = new Map();
 	var fastEntityAccessStr : Map<String, data.def.EntityDef> = new Map();
+
+	var fastStructAccessInt : Map<Int, data.def.StructDef> = new Map();
+	var fastStructAccessStr : Map<String, data.def.StructDef> = new Map();
 
 	var fastEnumAccessInt : Map<Int, data.def.EnumDef> = new Map();
 	var fastEnumAccessStr : Map<String, data.def.EnumDef> = new Map();
@@ -54,6 +58,14 @@ class Definitions {
 			fastEntityAccessStr.set(ed.identifier, ed);
 		}
 
+		// Structs
+		fastStructAccessInt = new Map();
+		fastStructAccessStr = new Map();
+		for(sd in structs) {
+			fastStructAccessInt.set(sd.uid, sd);
+			fastStructAccessStr.set(sd.identifier, sd);
+		}
+
 		// Enums
 		fastEnumAccessInt = new Map();
 		fastEnumAccessStr = new Map();
@@ -72,6 +84,7 @@ class Definitions {
 			layers: layers.map( ld->ld.toJson() ),
 			entities: entities.map( ed->ed.toJson(p) ),
 			tilesets: tilesets.map( td->td.toJson() ),
+			structs: structs.map( sd->sd.toJson(p)),
 			enums: enums.map( ed->ed.toJson(p) ),
 			externalEnums: externalEnums.map( ed->ed.toJson(p) ),
 			levelFields: levelFields.map( fd->fd.toJson() ),
@@ -92,6 +105,12 @@ class Definitions {
 		for( tilesetJson in JsonTools.readArray(json.tilesets) )
 			p.defs.tilesets.push( data.def.TilesetDef.fromJson(p, tilesetJson) );
 		p.defs.initFastAccesses();
+
+		if(json.structs != null){
+			for( structJson in JsonTools.readArray(json.structs) )
+				p.defs.structs.push( data.def.StructDef.fromJson(p, structJson) );
+			p.defs.initFastAccesses();
+		}
 
 		for( enumJson in JsonTools.readArray(json.enums) )
 			p.defs.enums.push( data.def.EnumDef.fromJson(p, p.jsonVersion, enumJson) );
@@ -358,6 +377,21 @@ class Definitions {
 		return ed;
 	}
 
+	public function createStructDef() : data.def.StructDef {
+		var ed = new data.def.StructDef(_project, _project.generateUniqueId_int());
+		structs.push(ed);
+
+		var id = "Struct";
+		var idx = 2;
+		while( !isStructIdentifierUnique(id) )
+			id = "Struct"+(idx++);
+		ed.identifier = id;
+
+		_project.tidy();
+
+		return ed;
+	}
+
 	public function duplicateEntityDef(ed:data.def.EntityDef) {
 		return pasteEntityDef( Clipboard.createTemp( CEntityDef, ed.toJson(_project) ), ed );
 	}
@@ -393,6 +427,15 @@ class Definitions {
 
 		for(ed in entities)
 			if( ed.identifier==id && ed!=exclude )
+				return false;
+
+		return true;
+	}
+	public function isStructIdentifierUnique(id:String, ?exclude:data.def.StructDef) {
+		id = Project.cleanupIdentifier(id, _project.identifierStyle);
+
+		for(sd in structs)
+			if( sd.identifier==id && sd!=exclude )
 				return false;
 
 		return true;
@@ -543,6 +586,12 @@ class Definitions {
 		for(efd in ed.fieldDefs)
 			if( efd.uid==uid )
 				return efd;
+
+		for(sd in structs)
+			for(efd in sd.fieldDefs)
+				if( efd.uid==uid )
+					return efd;
+
 
 		return null;
 	}
@@ -741,6 +790,12 @@ class Definitions {
 		_project.tidy();
 	}
 
+	public function removeStructDef(ed:data.def.StructDef) {
+		if( !structs.remove(ed) )
+			throw "StructDef not found";
+		_project.tidy();
+	}
+
 	public function isEnumIdentifierUnique(id:String, ?exclude:data.def.EnumDef) {
 		id = Project.cleanupIdentifier(id, _project.identifierStyle);
 		if( id==null )
@@ -762,6 +817,13 @@ class Definitions {
 			: id!=null ? fastEnumAccessStr.get(id)
 			: null;
 	}
+
+	public function getStructDef(?uid:Int, ?id:String) : Null<data.def.StructDef> {
+		return uid!=null ? fastStructAccessInt.get(uid)
+			: id!=null ? fastStructAccessStr.get(id)
+			: null;
+	}
+
 
 	public function getInternalEnumIndex(uid:Int) {
 		var idx = 0;
@@ -787,8 +849,6 @@ class Definitions {
 
 		return moved;
 	}
-
-
 
 	public function getGroupedExternalEnums() : Map<String,Array<data.def.EnumDef>> {
 		var map = new Map();

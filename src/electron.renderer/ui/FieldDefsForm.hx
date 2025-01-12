@@ -5,6 +5,7 @@ import data.def.FieldDef;
 enum FieldParentType {
 	FP_Entity(ed:data.def.EntityDef);
 	FP_Level(level:data.Level);
+	FP_Struct(sd:data.def.StructDef);
 }
 
 class FieldDefsForm {
@@ -28,6 +29,7 @@ class FieldDefsForm {
 		jWrapper.html( JsTools.getHtmlTemplate("fieldDefsForm", { parentType: switch parentType {
 			case FP_Entity(_): "Entity";
 			case FP_Level(_): "Level";
+			case FP_Struct(_): "Struct";
 		}}) );
 
 		// Create single field
@@ -51,6 +53,7 @@ class FieldDefsForm {
 		return switch parentType {
 			case FP_Entity(ed): ed!=null ? ed.identifier : "Unknown entity";
 			case FP_Level(l): l!=null ? l.identifier : "Unknown level";
+			case FP_Struct(sd): sd!=null ? sd.identifier : "Unknown Struct";
 		}
 	}
 
@@ -61,11 +64,15 @@ class FieldDefsForm {
 	inline function isEntityField() {
 		return getEntityParent()!=null;
 	}
+	inline function isStructField() {
+		return getStructParent()!=null;
+	}
 
 	function getEntityParent() {
 		return switch parentType {
 			case FP_Entity(ed): ed;
 			case FP_Level(level): null;
+			case FP_Struct(sd): null;
 		}
 	}
 
@@ -73,6 +80,15 @@ class FieldDefsForm {
 		return switch parentType {
 			case FP_Entity(ed): null;
 			case FP_Level(level): level;
+			case FP_Struct(sd): null;
+		}
+	}
+
+	function getStructParent() {
+		return switch parentType {
+			case FP_Entity(ed): null;
+			case FP_Level(level): null;
+			case FP_Struct(sd): sd;
 		}
 	}
 
@@ -169,7 +185,7 @@ class FieldDefsForm {
 		var types : Array<ldtk.Json.FieldType> = [
 			F_Int, F_Float, F_Bool, F_String, F_Text, F_Color, F_Enum(null), F_Path, F_Tile,
 		];
-		if( isEntityField() ) {
+		if( isEntityField() || isStructField()) {
 			types.push(F_EntityRef);
 			types.push(F_Point);
 		}
@@ -329,6 +345,11 @@ class FieldDefsForm {
 				for( l in w.levels )
 					editor.invalidateLevelCache(l);
 
+			case FP_Struct(_):
+				for( w in project.worlds )
+				for( l in w.levels )
+					editor.invalidateLevelCache(l);
+
 			case FP_Level(_):
 				for( w in project.worlds )
 				for( l in w.levels )
@@ -350,6 +371,7 @@ class FieldDefsForm {
 		return switch parentType {
 			case FP_Entity(ed): ed.color;
 			case FP_Level(level): level.getSmartColor(true);
+			case FP_Struct(sd): ColorEnum.Blue;
 		}
 	}
 
@@ -670,7 +692,10 @@ class FieldDefsForm {
 
 					case OnlySame:
 					case OnlySpecificEntity:
-						curField.allowedRefsEntityUid = getEntityParent().uid;
+						if(isEntityField())
+							curField.allowedRefsEntityUid = getEntityParent().uid;
+						else 
+							curField.allowedRefsEntityUid = project.defs.entities[0].uid;
 				}
 				curField.allowedRefs = v;
 				onFieldChange();
@@ -678,7 +703,11 @@ class FieldDefsForm {
 			(v)->return switch v {
 				case Any: L.t._("Any entity");
 				case OnlyTags: L.t._("Any entity with one of the specified tags");
-				case OnlySame: L.t._("Only another '::name::'s", { name:getParentName() });
+				case OnlySame: 
+					isEntityField() ?
+						L.t._("Only another '::name::'s", { name:getParentName() })
+						: L.t._("Only another entity with this Struct");
+				
 				case OnlySpecificEntity: L.t._("Only a specific Entity");
 			}
 		);

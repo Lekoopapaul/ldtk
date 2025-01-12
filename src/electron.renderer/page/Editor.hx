@@ -1,5 +1,8 @@
 package page;
 
+import ui.Modal;
+import ui.modal.panel.EditStructDefs;
+
 class Editor extends Page {
 	public static var ME : Editor;
 
@@ -198,7 +201,9 @@ class Editor extends Page {
 		jMainPanel.find("button.editEnums").click( function(_) {
 			App.ME.executeAppCommand(C_OpenEnumPanel);
 		});
-
+		jMainPanel.find("button.editStructs").click( function(_) {
+			App.ME.executeAppCommand(C_OpenStructPanel);
+		});
 
 		jMainPanel.find("button.close").click( function(ev) onClose(ev.getThis()) );
 
@@ -863,6 +868,12 @@ class Editor extends Page {
 					ui.Modal.closeAll();
 				else
 					new ui.modal.panel.EditEntityDefs();
+
+			case C_OpenStructPanel:
+				if(ui.Modal.isOpen(EditStructDefs))
+					Modal.closeAll();
+				else
+					new ui.modal.panel.EditStructDefs();
 
 			case C_OpenEnumPanel:
 				if( ui.Modal.isOpen(ui.modal.panel.EditEnumDefs) )
@@ -2187,7 +2198,11 @@ class Editor extends Page {
 			case EntityDefAdded:
 			case EntityDefRemoved: invalidateAllLevelsCache();
 			case EntityDefChanged: invalidateAllLevelsCache();
+			case StructDefAdded:
+			case StructDefChanged: invalidateAllLevelsCache();
+			case StructDefRemoved: invalidateAllLevelsCache();
 			case EntityDefSorted:
+			case StructDefSorted: 
 			case FieldDefAdded(fd): invalidateAllLevelsCache();
 			case FieldDefRemoved(fd): invalidateAllLevelsCache();
 			case FieldDefChanged(fd): invalidateAllLevelsCache();
@@ -2256,6 +2271,8 @@ class Editor extends Page {
 			case ViewportChanged(zoomChanged):
 
 			case EnumDefAdded, EnumDefRemoved, EnumDefChanged, EnumDefSorted, EnumDefValueRemoved:
+			
+			case StructDefAdded, StructDefRemoved, StructDefChanged, StructDefSorted:
 
 			case ExternalEnumsLoaded(anyCriticalChange):
 				Tool.clearSelectionMemory();

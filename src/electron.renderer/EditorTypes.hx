@@ -72,6 +72,11 @@ enum GlobalEvent {
 	EntityDefChanged;
 	EntityDefSorted;
 
+	StructDefAdded;
+	StructDefRemoved;
+	StructDefChanged;
+	StructDefSorted;
+
 	FieldDefAdded(fd:data.def.FieldDef);
 	FieldDefRemoved(fd:data.def.FieldDef);
 	FieldDefChanged(fd:data.def.FieldDef);
@@ -284,6 +289,7 @@ enum AppCommand {
 	@k("u") C_OpenEnumPanel;
 	@k("t") C_OpenTilesetPanel;
 	@k("c") C_OpenLevelPanel;
+	@k("s") C_OpenStructPanel;
 
 	@k("[zqsd] z, [wasd] w, [arrows] up") C_NavUp;
 	@k("[zqsd] s, [wasd] s, [arrows] down") C_NavDown;

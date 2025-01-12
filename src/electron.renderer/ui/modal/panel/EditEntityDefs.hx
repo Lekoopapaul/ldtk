@@ -144,6 +144,11 @@ class EditEntityDefs extends ui.modal.Panel {
 			case ExternalEnumsLoaded(anyCriticalChange):
 				updateEntityList();
 				updateFieldsForm();
+			
+			case StructDefChanged, StructDefAdded, StructDefRemoved:
+				updateEntityForm();
+				updateFieldsForm();
+				updatePreview();
 
 			case _:
 		}

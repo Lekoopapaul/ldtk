@@ -1254,6 +1254,7 @@ ul.log {
 .icon.emptySpaceOn		{ background-image: url("../icons/emptySpaceOn.png"); }
 .icon.entity			{ background-image: url("../icons/entity.png"); }
 .icon.enum				{ background-image: url("../icons/enum.png"); }
+.icon.struct			{ background-image: url("../icons/struct.png"); }
 .icon.exit				{ background-image: url("../icons/exit.svg"); }
 .icon.expanded			{ background-image: url("../icons/expanded.svg"); }
 .icon.fit				{ background-image: url("../icons/fit.svg"); }
@@ -7243,6 +7244,7 @@ canvas#webgl {
 		&.type-F_Bool .F_Bool,
 		&.type-F_Color .F_Color,
 		&.type-F_Enum .F_Enum,
+		&.type-F_Struct .F_Struct,
 		&.type-F_Point .F_Point,
 		&.type-F_Text .F_Text,
 		&.type-F_String .F_String,
@@ -7912,6 +7914,22 @@ dl.form.fieldInstanceEditor {
 			grid-column: 1/3;
 		}
 		.enumList {
+			grid-column: 1/2;
+			display: grid;
+			grid-template-rows: min-content min-content auto;
+			overflow: hidden;
+			ul {
+				overflow: auto;
+				li .name {
+					overflow-x: hidden;
+					width: 100%;
+				}
+				li.missing {
+					background-color: $darkRed;
+				}
+			}
+		}
+		.structList {
 			grid-column: 1/2;
 			display: grid;
 			grid-template-rows: min-content min-content auto;
@@ -10350,6 +10368,161 @@ $patternSize : 32px;
 
 }
 
+.window.panel.structDefs {
+	.content{
+		display: grid;
+		height: 100%;
+		justify-content: stretch;
+		column-gap: 16px;
+		grid-template-rows: min-content auto;
+		grid-template-columns: 250px auto;
+		&.noHelp {
+			grid-template-rows: min-content auto;
+			&>.header {
+				display: none;
+			}
+		}
+
+		dl.form.main {
+			padding-bottom: 0;
+		}
+
+		dl.form.extra {
+			padding: 8px;
+			width: calc( 100% - 16px );
+			outline: 1px solid $bgLight;
+			outline-offset: -1px;
+
+			.minMax {
+				margin-left: 16px;
+				display: flex;
+				align-items: center;
+				span {
+					flex: 0 1 0;
+					opacity: 0.6;
+					padding: 0 3px;
+					&.sep {
+						margin-left: 16px;
+					}
+				}
+				input {
+					flex: 1 1 32px;
+					width: 0;
+				}
+			}
+		}
+
+
+		>h2:first-of-type {
+			grid-column: 1/3;
+		}
+		>.header {
+			grid-column: 1/3;
+		}
+
+		>.structList {
+			display: grid;
+			grid-template-rows: min-content min-content auto;
+			overflow: hidden;
+			>ul {
+				overflow: auto;
+				li:not(.subList):not(.title) {
+					grid-template-columns: min-content auto min-content;
+					.name {
+						overflow-x: hidden;
+						width: 100%;
+					}
+				}
+			}
+			ul:empty::before {
+				content: "No entity";
+			}
+		}
+
+		.rightColumn {
+			overflow: hidden;
+			display: grid;
+			grid-template-rows: min-content auto;
+			.structForm {
+				margin-bottom: 16px;
+			}
+		}
+
+		button {
+			white-space: nowrap;
+		}
+
+
+		.renderMode {
+			*[class*=mode_] {
+				display: none;
+			}
+			&.mode_Rectangle .mode_Rectangle,
+			&.mode_Ellipse .mode_Ellipse,
+			&.mode_Tile .mode_Tile {
+				display: block;
+			}
+
+			select, canvas {
+				margin-left: 4px;
+			}
+
+			select.renderMode {
+				flex: 1 1 0px;
+			}
+
+			.tilePicker {
+				flex: 0 0 auto;
+			}
+
+			.nineSlice {
+				display: flex;
+				flex: 1 0 100%;
+				flex-wrap: nowrap;
+				opacity: 1;
+				align-items: center;
+				span {
+					opacity: 0.8;
+					margin-left: 8px;
+				}
+				input {
+					width: 40px;
+				}
+			}
+		}
+	}
+
+	.content {
+		width: 960px;
+	}
+
+	.previewWrapper {
+		position: relative;
+		float: right;
+		margin: 8px;
+		border: 1px solid $bgLight;
+		display: none;
+
+		.entityPreview {
+			width: 64px;
+			height: 64px;
+		}
+
+		.label {
+			position: absolute;
+			z-index: 1;
+			bottom: 0px;
+			right: 0px;
+			font-size: 7pt;
+			text-transform: uppercase;
+		}
+	}
+
+	input[type=color] {
+		min-height: 32px;
+	}
+
+}
 
 #timelineDebug {
 	position: absolute;

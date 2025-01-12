@@ -305,6 +305,8 @@ class LevelRender extends dn.Process {
 
 			case EnumDefAdded:
 			case EnumDefSorted:
+			
+			case StructDefAdded, StructDefRemoved, StructDefChanged, StructDefSorted:
 		}
 
 		for(lr in layerRenders)

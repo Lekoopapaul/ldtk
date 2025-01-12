@@ -1183,6 +1183,20 @@ class Project {
 		return false;
 	}
 
+	public function isStructDefUsed(structDef:data.def.StructDef) {
+		/**
+		for( ed in defs.entities )
+		for( fd in ed.fieldDefs )
+			switch fd.type {
+				case F_Struct(structDefUid):
+					if( structDefUid==structDef.uid )
+						return true;
+				case _:
+			}
+		**/
+		return false;
+	}
+
 	public function isEnumValueUsed(enumDef:data.def.EnumDef, val:String) {
 		for( w in worlds )
 		for( l in w.levels )

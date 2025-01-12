@@ -1,5 +1,9 @@
 package data.def;
 
+import ui.FieldInstancesForm;
+import data.inst.FieldInstance;
+import js.Browser;
+import haxe.io.Output;
 import data.DataTypes;
 
 class FieldDef {
@@ -52,7 +56,7 @@ class FieldDef {
 	public var tilesetUid : Null<Int>;
 
 
-	@:allow(data.def.EntityDef, ui.FieldDefsForm)
+	@:allow(data.def.EntityDef, ui.FieldDefsForm,data.def.StructDef)
 	private function new(p:data.Project, uid:Int, t:ldtk.Json.FieldType, array:Bool) {
 		_project = p;
 		this.uid = uid;
