@@ -221,7 +221,7 @@ class EditEnumDefs extends ui.modal.Panel {
 				ContextMenu.attachTo_new(jLi, (ctx:ContextMenu)->{
 					ctx.addElement( Ctx_CopyPaster({
 						elementName: "enum",
-						clipType: CLayerDef,
+						clipType: CEnumDef,
 
 						copy: ()->App.ME.clipboard.copyData(CEnumDef, ed.toJson(project)),
 						cut: ()->{

@@ -164,6 +164,10 @@ class Clipboard {
 					var json : ldtk.Json.TilesetDefJson = jsonObj;
 					'Tileset definition "${json.identifier}"';
 
+				case CStructDef:
+					var json : ldtk.Json.StructDefJson = jsonObj;
+					'Struct definition "${json.identifier}"';
+
 				case CFieldDef:
 					var json : ldtk.Json.FieldDefJson = jsonObj;
 					'Field definition "${json.identifier}"';

@@ -767,6 +767,10 @@ class Definitions {
 		return pasteEnumDef( Clipboard.createTemp(CEnumDef,ed.toJson(_project)), ed);
 	}
 
+	public function duplicateStructDef(sd:data.def.StructDef) {
+		return pasteStructDef( Clipboard.createTemp(CStructDef,sd.toJson(_project)), sd);
+	}
+
 	public function pasteEnumDef(c:Clipboard, ?after:data.def.EnumDef) : Null<data.def.EnumDef> {
 		if( !c.is(CEnumDef) )
 			return null;
@@ -780,6 +784,22 @@ class Definitions {
 			enums.push(copy);
 		else
 			enums.insert( dn.Lib.getArrayIndex(after, enums)+1, copy );
+		_project.tidy();
+		return copy;
+	}
+	public function pasteStructDef(c:Clipboard, ?after:data.def.StructDef) : Null<data.def.StructDef> {
+		if( !c.is(CStructDef) )
+			return null;
+
+		var json : ldtk.Json.StructDefJson = c.getParsedJson();
+		var copy = data.def.StructDef.fromJson( _project, json );
+		copy.uid = _project.generateUniqueId_int();
+
+		copy.identifier = _project.fixUniqueIdStr(json.identifier, (id)->isStructIdentifierUnique(id));
+		if( after==null )
+			structs.push(copy);
+		else
+			structs.insert( dn.Lib.getArrayIndex(after, structs)+1, copy );
 		_project.tidy();
 		return copy;
 	}
@@ -835,6 +855,16 @@ class Definitions {
 		return idx>=enums.length ? -1 : idx;
 	}
 
+	public function getStructIndex(uid:Int) {
+		var idx = 0;
+		for(sd in structs)
+			if( sd.uid==uid )
+				break;
+			else
+				idx++;
+		return idx>=structs.length ? -1 : idx;
+	}
+
 	public function sortEnumDef(from:Int, to:Int) : Null<data.def.EnumDef> {
 		if( from<0 || from>=enums.length || from==to )
 			return null;
@@ -849,6 +879,22 @@ class Definitions {
 
 		return moved;
 	}
+
+	public function sortStructDef(from:Int, to:Int) : Null<data.def.StructDef> {
+		if( from<0 || from>=structs.length || from==to )
+			return null;
+
+		if( to<0 || to>=structs.length )
+			return null;
+
+		_project.tidy();
+
+		var moved = structs.splice(from,1)[0];
+		structs.insert(to, moved);
+
+		return moved;
+	}
+
 
 	public function getGroupedExternalEnums() : Map<String,Array<data.def.EnumDef>> {
 		var map = new Map();

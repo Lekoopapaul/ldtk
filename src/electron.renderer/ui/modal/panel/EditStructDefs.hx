@@ -25,6 +25,13 @@ class EditStructDefs extends ui.modal.Panel{
 		fieldsForm = new ui.FieldDefsForm( FP_Struct(null) );
 		jContent.find("#fields").replaceWith( fieldsForm.jWrapper );
 
+		// Create quick search
+		search = new ui.QuickSearch( jContent.find(".structList ul") );
+		search.jWrapper.appendTo( jContent.find(".search") );
+
+		if( project.defs.structs.length>0 )
+			selectStruct( project.defs.structs[0] );
+
 		updateStructList();
 		updateStructForm();
         
@@ -78,6 +85,19 @@ class EditStructDefs extends ui.modal.Panel{
 		var jStructList = jContent.find(".structList>ul");
 		jStructList.empty();
 
+		// List context menu
+		ContextMenu.attachTo(jStructList, false, [
+			{
+				label: L._Paste(),
+				cb: ()->{
+					var copy = project.defs.pasteStructDef(App.ME.clipboard);
+					editor.ge.emit(StructDefAdded);
+					selectStruct(copy);
+				},
+				enable: ()->App.ME.clipboard.is(CStructDef),
+			},
+		]);
+
 		var tagGroups = project.defs.groupUsingTags(project.defs.structs, ed->ed.tags);
 		for( group in tagGroups) {
 			// Tag name
@@ -94,28 +114,68 @@ class EditStructDefs extends ui.modal.Panel{
 			var jSubList = new J('<ul class="niceList compact"/>');
 			jSubList.appendTo(jLi);
 
-			for(ed in group.all) {
+			for(sd in group.all) {
 				var jLi = new J('<li class="draggable"/>');
 				jLi.appendTo(jSubList);
-				jLi.data("uid", ed.uid);
-				if( ed==curStruct )
+				jLi.data("uid", sd.uid);
+				if( sd==curStruct )
 					jLi.addClass("active");
-				jLi.append('<span class="name">'+ed.identifier+'</span>');
+				jLi.append('<span class="name">'+sd.identifier+'</span>');
 				jLi.click( function(_) {
-					selectStruct(ed);
+					selectStruct(sd);
+				});
+
+				ContextMenu.attachTo_new(jLi, (ctx:ContextMenu)->{
+					ctx.addElement( Ctx_CopyPaster({
+						elementName: "struct",
+						clipType: CStructDef,
+
+						copy: ()->App.ME.clipboard.copyData(CStructDef, sd.toJson(project)),
+						cut: ()->{
+							App.ME.clipboard.copyData(CStructDef, sd.toJson(project));
+							deleteStructDef(sd, true);
+						},
+						paste: ()->{
+							var copy = project.defs.pasteStructDef(App.ME.clipboard, sd);
+							editor.ge.emit(EnumDefAdded);
+							selectStruct(copy);
+						},
+						duplicate: ()->{
+							var copy = project.defs.duplicateStructDef(sd);
+							editor.ge.emit(EnumDefAdded);
+							selectStruct(copy);
+						},
+						delete: ()->deleteStructDef(sd,true),
+					}) );
 				});
 
 			}
 
+			// Make sub list sortable
+			JsTools.makeSortable(jSubList, function(ev) {
+				var jItem = new J(ev.item);
+				var fromIdx = project.defs.getStructIndex( jItem.data("uid") );
+				var toIdx = ev.newIndex>ev.oldIndex
+					? jItem.prev().length==0 ? 0 : project.defs.getStructIndex( jItem.prev().data("uid") )
+					: jItem.next().length==0 ? project.defs.structs.length-1 : project.defs.getStructIndex( jItem.next().data("uid") );
+
+				var moved = project.defs.sortStructDef(fromIdx, toIdx);
+				selectStruct(moved);
+				editor.ge.emit(StructDefSorted);
+			}, { onlyDraggables:true });
+
 		}
+
+		JsTools.parseComponents(jStructList);
+		search.run();
 	}
 
 	function deleteStructDef(ed:data.def.StructDef, fromContext:Bool) {
 		// Local enum removal
 		function _delete() {
-			new ui.LastChance( L.t._("Enum ::name:: deleted", { name: ed.identifier}), project );
+			new ui.LastChance( L.t._("Struct ::name:: deleted", { name: ed.identifier}), project );
 			project.defs.removeStructDef(ed);
-			editor.ge.emit(EnumDefRemoved);
+			editor.ge.emit(StructDefRemoved);
 			selectStruct( project.defs.structs[0] );
 		}
 		var isUsed = project.isStructDefUsed(ed);
@@ -123,7 +183,7 @@ class EditStructDefs extends ui.modal.Panel{
 			new ui.modal.dialog.Confirm(Lang.t._("This struct is not used and can be safely removed."), _delete);
 		else if( isUsed )
 			new ui.modal.dialog.Confirm(
-				Lang.t._("WARNING! This STRUCT is used in one or more entity fields. These fields will also be deleted!"),
+				Lang.t._("WARNING! This STRUCT is used in one or more entity/level fields. These fields will also be deleted!"),
 				true,
 				_delete
 			);

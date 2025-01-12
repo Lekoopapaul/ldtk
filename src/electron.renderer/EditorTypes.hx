@@ -219,6 +219,7 @@ enum ClipboardType {
 	CLayerDef;
 	CEntityDef;
 	CEnumDef;
+	CStructDef;
 	CTilesetDef;
 
 	CFieldDef;
