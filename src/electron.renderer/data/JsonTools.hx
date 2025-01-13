@@ -1,5 +1,6 @@
 package data;
 
+
 class JsonTools {
 
 	public static function writeEnum(e:EnumValue, canBeNull:Bool) : Dynamic {

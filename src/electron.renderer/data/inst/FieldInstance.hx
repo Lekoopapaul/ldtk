@@ -11,7 +11,7 @@ class FieldInstance {
 	@:allow(misc.FieldTypeConverter)
 	var internalValues : Array<ValueWrapper>;
 
-	@:allow(data.inst.EntityInstance, data.Level)
+	@:allow(data.inst.EntityInstance, data.Level,data.inst.StructInstance)
 	private function new(p:Project, fieldDefUid:Int) {
 		_project = p;
 		defUid = fieldDefUid;
