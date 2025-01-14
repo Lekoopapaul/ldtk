@@ -178,6 +178,9 @@ class OgmoLoader {
 
 							case F_Point:
 
+							case F_Struct(structDefUid):
+								fd.canBeNull = true;
+
 							case F_Path:
 								fd.setAcceptFileTypes( valJson.extensions.join(" ") );
 
@@ -403,6 +406,7 @@ class OgmoLoader {
 													fi.parseValue(0, rawValue.split(":")[1]);
 
 											case F_Tile:
+											case F_Struct(structDefUid):
 											case F_EntityRef:
 										}
 

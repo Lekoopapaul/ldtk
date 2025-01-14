@@ -158,7 +158,36 @@ class FieldDefsForm {
 							});
 					}
 					return;
+				
+				case F_Struct(null):
+					if( project.defs.structs.length==0 ) {
+						w.close();
+						new ui.modal.dialog.Choice(
+							L.t._("This project contains no Struct yet. You first need to create one from the Struct panel."),
+							[
+								{ label:L.t._("Open struct panel"), cb:()->new ui.modal.panel.EditStructDefs() }
+							]
+						);
+						return;
+					}
 
+					// Struct picker
+					var ctx = new ui.modal.ContextMenu(ev);
+					var tagGroups = project.defs.groupUsingTags(project.defs.structs, sd->sd.tags);
+					if( tagGroups.length<=1 )
+						ctx.addTitle(L.t._("Pick an existing struct"));
+					for(group in tagGroups) {
+						if( tagGroups.length>1 )
+							ctx.addTitle( group.tag==null ? L._Untagged() : L.untranslated(group.tag) );
+						for(sd in group.all) {
+							ctx.addAction({
+								label: L.untranslated(sd.identifier),
+								cb: ()->_create(ev, F_Struct(sd.uid)),
+							});
+						}
+					}
+
+					return;
 
 				case _:
 			}
@@ -185,6 +214,8 @@ class FieldDefsForm {
 		var types : Array<ldtk.Json.FieldType> = [
 			F_Int, F_Float, F_Bool, F_String, F_Text, F_Color, F_Enum(null), F_Path, F_Tile,
 		];
+		if(!isStructField())
+			types.push(F_Struct(null));
 		if( isEntityField() || isStructField()) {
 			types.push(F_EntityRef);
 			types.push(F_Point);
@@ -821,6 +852,7 @@ class FieldDefsForm {
 						case F_Bool, F_Color, F_Enum(_): "N/A";
 						case F_EntityRef: "N/A";
 						case F_Tile: "N/A";
+						case F_Struct(_): "N/A";
 					});
 
 				defInput.change( function(ev) {
@@ -879,6 +911,8 @@ class FieldDefsForm {
 						curField.setDefault(v);
 					onFieldChange();
 				});
+
+			case F_Struct(name):
 
 			case F_Color:
 				var defInput = jForm.find("input[name=cDef]");

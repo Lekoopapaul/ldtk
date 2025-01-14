@@ -1,5 +1,8 @@
 package data.def;
 
+import ldtk.Json.StructInstanceJson;
+import ldtk.Json.EntityInstanceJson;
+import data.inst.StructInstance;
 import ui.FieldInstancesForm;
 import data.inst.FieldInstance;
 import js.Browser;
@@ -94,6 +97,7 @@ class FieldDef {
 			case F_Float:
 			case F_String:
 			case F_Text:
+			case F_Struct(structIid): 
 			case F_Bool:
 			case F_Color:
 			case F_Enum(enumDefUid):
@@ -111,6 +115,7 @@ class FieldDef {
 			case F_Color: true;
 			case F_Enum(enumDefUid): false;
 			case F_Point, F_Path: false;
+			case F_Struct(structIid): false;
 			case F_EntityRef: false;
 			case F_Tile: false;
 		};
@@ -233,6 +238,7 @@ class FieldDef {
 			case F_Bool: "#cd88dd";
 			case F_Color: "#99d367";
 			case F_Enum(enumDefUid): "#ff4b4b";
+			case F_Struct(structIid): "#3234a8";
 			case F_Path: "#7779c9";
 			case F_Point: "#7779c9";
 			case F_EntityRef: "#7779c9";
@@ -255,6 +261,7 @@ class FieldDef {
 			case F_Bool: "Bool";
 			case F_Color: "Color";
 			case F_Point: "Point";
+			case F_Struct(structIid): "Struct";
 			case F_Enum(enumDefUid): "Enum."+_project.defs.getEnumDef(enumDefUid).identifier;
 			case F_Path: "File path";
 			case F_EntityRef: "Entity ref";
@@ -272,6 +279,7 @@ class FieldDef {
 			case F_Bool: "Bool";
 			case F_Color: "Color";
 			case F_Point: "Point";
+			case F_Struct(structIid): "Struct";
 			case F_Enum(enumDefUid):
 				var ed = _project.defs.getEnumDef(enumDefUid);
 				( ed.isExternal() ? "ExternEnum." : "LocalEnum." ) + ed.identifier;
@@ -428,10 +436,29 @@ class FieldDef {
 			return type.getIndex() == ldtk.Json.FieldType.F_Enum(null).getIndex();
 	}
 
+	public inline function isStruct(?structDefUid:Int) {
+		if( structDefUid!=null )
+			return switch type {
+				case F_Struct(uid): uid==structDefUid;
+				case _: false;
+			}
+		else
+			return type.getIndex() == ldtk.Json.FieldType.F_Struct(null).getIndex();
+	}
+
 	public function getEnumDefinition() : Null<EnumDef> {
 		return isEnum()
 			?  _project.defs.getEnumDef(switch type {
 				case F_Enum(enumDefUid): enumDefUid;
+				case _: throw "unexpected";
+			})
+			: null;
+	}
+
+	public function getStructDefinition() : Null<StructDef> {
+		return isStruct()
+			?  _project.defs.getStructDef(switch type {
+				case F_Struct(structDefUid): structDefUid;
 				case _: throw "unexpected";
 			})
 			: null;
@@ -450,6 +477,18 @@ class FieldDef {
 				return null;
 		}
 	}
+	public function getStructDefault() : Null<StructInstance> {
+		require(F_Struct(null));
+
+		switch defaultOverride {
+			case V_String(v):
+				var sd = getStructDefinition();
+				return sd==null ? null : StructInstance.fromJson(_project,haxe.Json.parse(v));
+
+			case _:
+				return null;
+		}
+	}
 
 
 	public function restoreDefault() {
@@ -463,6 +502,11 @@ class FieldDef {
 			case F_Int:
 				var def = Std.parseInt(rawDef);
 				defaultOverride = !dn.M.isValidNumber(def) ? null : V_Int( iClamp(def) );
+
+			case F_Struct(structDefUid):
+				var def: StructInstanceJson = haxe.Json.parse(rawDef);
+				if(def.defUid == structDefUid)
+					defaultOverride = V_String(StringTools.trim(rawDef));
 
 			case F_Color:
 				var def = dn.legacy.Color.hexToInt(rawDef);
@@ -527,6 +571,7 @@ class FieldDef {
 			case F_Bool: getBoolDefault();
 			case F_Point: getPointDefault();
 			case F_Enum(name): getEnumDefault();
+			case F_Struct(name): getStructDefault();
 			case F_EntityRef: null;
 			case F_Tile: null;
 		}

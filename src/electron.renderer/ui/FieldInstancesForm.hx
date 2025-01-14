@@ -1,5 +1,8 @@
 package ui;
 
+import data.inst.StructInstance;
+import h3d.anim.Skin.Joint;
+import js.Browser;
 import data.def.FieldDef;
 import data.inst.FieldInstance;
 
@@ -289,6 +292,36 @@ class FieldInstancesForm {
 					);
 				});
 				hideInputIfDefault(arrayIdx, jText, fi);
+
+			case F_Struct(structDefUid):
+				if( fi.def.editorTextPrefix!=null && !fi.isUsingDefault(arrayIdx) )
+					jTarget.append('<span class="prefix">${fi.def.editorTextPrefix}</span>');
+
+				var def = project.defs.getStructDef(structDefUid);
+				
+				var ins = fi.getStructValue(arrayIdx);
+				if(ins == null){
+					
+					ins = new StructInstance(project,structDefUid,project.generateUniqueId_UUID());
+					fi.parseValue(arrayIdx,haxe.Json.stringify(ins.toJson()));
+				}
+
+				
+
+				var fieldForm = new FieldInstancesForm();
+				fieldForm.jWrapper.appendTo(jTarget);
+				fieldForm.onChange = () ->{
+					
+					for(instance in ins.fieldInstances){
+						var fd = def.fieldDefs.filter(f -> f.uid == instance.defUid)[0];
+						ins.fieldInstances[instance.defUid] = fieldForm.fieldInstGetter(fd);
+						fi.parseValue(arrayIdx,haxe.Json.stringify(ins.toJson()));
+					}
+					onFieldChange(fi);
+					
+				};
+				fieldForm.use(relatedInstance,def.fieldDefs,fd -> ins.getFieldInstance(fd,true));
+				
 
 			case F_Point:
 				if( fi.valueIsNull(arrayIdx) && !fi.def.canBeNull || !fi.def.isArray ) {
@@ -761,6 +794,7 @@ class FieldInstancesForm {
 				// var ev : js.html.MouseEvent = cast js.Browser.document.createEvent("MouseEvents");
 				// ev.initMouseEvent("mousedown", true, true, js.Browser.window, 0, 5, 5, 5, 5, false, false, false, false, 0, null);
 				// var ok = select.dispatchEvent(ev);
+			case F_Struct(structDefUid):
 
 			case F_Point:
 				// Not done here

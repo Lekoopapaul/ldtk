@@ -1,5 +1,6 @@
 package data.inst;
 
+import js.Browser;
 import data.DataTypes;
 
 class FieldInstance {
@@ -159,6 +160,7 @@ class FieldInstance {
 				case F_Path: return getFilePath(arrayIdx)==def.getDefault();
 				case F_Tile: return getFilePath(arrayIdx)==def.getDefault();
 				case F_EntityRef: return false;
+				case F_Struct(structIid): return getStructValue(arrayIdx) == def.getStructDefault();
 			}
 		}
 	}
@@ -176,6 +178,12 @@ class FieldInstance {
 					v = def.iClamp(v);
 					setInternal(arrayIdx, V_Int(v) );
 				}
+			case F_Struct(structIid):
+				raw = StringTools.trim(raw);
+				if(raw.length == 0)
+					setInternal(arrayIdx,null);
+				else 
+					setInternal(arrayIdx,V_String(raw));
 
 			case F_Color:
 				setInternal( arrayIdx, raw==null ? null : V_Int(dn.legacy.Color.hexToInt(raw)) );
@@ -334,7 +342,7 @@ class FieldInstance {
 		// Null not accepted
 		if( !def.canBeNull && valueIsNull(arrayIdx) )
 			switch def.type {
-				case F_Int, F_Float, F_String, F_Text, F_Bool, F_Color:
+				case F_Int, F_Float, F_String, F_Text, F_Bool, F_Color,F_Struct(_):
 				case F_Enum(_), F_Point, F_Path, F_EntityRef, F_Tile:
 					return "Value required";
 			}
@@ -357,6 +365,8 @@ class FieldInstance {
 				}
 
 			case F_Tile:
+			
+			case F_Struct(structIid):
 
 			case F_EntityRef:
 				var tei = getEntityRefInstance(arrayIdx);
@@ -412,6 +422,7 @@ class FieldInstance {
 			case F_Enum(name): getEnumValue(arrayIdx);
 			case F_EntityRef: getEntityRefIid(arrayIdx);
 			case F_Tile: getTileRectStr(arrayIdx);
+			case F_Struct(name): getStructValue(arrayIdx);
 		}
 		return v == null;
 	}
@@ -467,6 +478,7 @@ class FieldInstance {
 			case F_Point: getPointStr(arrayIdx);
 			case F_EntityRef: getEntityRefForDisplay(arrayIdx);
 			case F_Tile: getTileRectStr(arrayIdx);
+			case F_Struct(name): getStructValue(arrayIdx);
 		}
 		if( v==null )
 			return "null";
@@ -479,6 +491,7 @@ class FieldInstance {
 			case F_String, F_Text, F_Path: return '"$v"';
 			case F_EntityRef: return '@($v)';
 			case F_Tile: return '$v';
+			case F_Struct(name): return '$v';
 		}
 	}
 
@@ -497,6 +510,7 @@ class FieldInstance {
 			case F_Bool: getBool(arrayIdx);
 			case F_Color: getColorAsHexStr(arrayIdx);
 			case F_Point: getPointGrid(arrayIdx);
+			case F_Struct(structIid): getStructValue(arrayIdx) == null ? null : getStructValue(arrayIdx).toJson();
 			case F_Enum(enumDefUid): getEnumValue(arrayIdx);
 
 			case F_EntityRef:
@@ -537,6 +551,7 @@ class FieldInstance {
 			case F_String:
 			case F_Text:
 			case F_Bool:
+			case F_Struct(structIid):
 			case F_Color:
 				for(i in 0...getArrayLength())
 					if( !valueIsNull(i) )
@@ -756,6 +771,14 @@ class FieldInstance {
 		}
 	}
 
+	public function getStructValue(arrayIdx:Int) : Null<StructInstance> {
+		require( F_Struct(null) );
+		return isUsingDefault(arrayIdx) ? def.getStructDefault() : switch internalValues[arrayIdx] {
+			case V_String(v): StructInstance.fromJson(_project,haxe.Json.parse(v));
+			case _: throw "unexpected";
+		}
+	}
+
 
 	public function getEnumValueTileRect(arrayIdx:Int) : Null<ldtk.Json.TilesetRect> {
 		require( F_Enum(null) );
@@ -850,6 +873,10 @@ class FieldInstance {
 						parseValue(i, null);
 						anyChange = true;
 					}
+			case F_Struct(structIid):
+				for(i in 0...getArrayLength())
+					if(getStructValue(i)!= null )
+						anyChange = getStructValue(i).tidy(_project);
 		}
 
 		return anyChange;

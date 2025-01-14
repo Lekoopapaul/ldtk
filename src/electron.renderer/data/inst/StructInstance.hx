@@ -19,7 +19,7 @@ class StructInstance{
 		return 'StructInst "${def.identifier}"';
 	}
 
-    public function toJson(li:data.inst.LayerInstance) : ldtk.Json.StructInstanceJson {
+    public function toJson() : ldtk.Json.StructInstanceJson {
 		var json : ldtk.Json.StructInstanceJson = {
 			// Fields preceded by "__" are only exported to facilitate parsing
 			__identifier: def.identifier,
@@ -52,6 +52,30 @@ class StructInstance{
 		}
 
 		return si;
+	}
+
+    public function tidy(p:data.Project) {
+		_project = p;
+		_project.markIidAsUsed(iid);
+		var anyChange = false;
+
+		// Remove field instances whose def was removed
+		for(e in fieldInstances.keyValueIterator())
+			if( e.value.def==null ) {
+				App.LOG.add("tidy", 'Removed lost fieldInstance in $this');
+				fieldInstances.remove(e.key);
+			}
+
+		// Create missing field instances
+		for(fd in def.fieldDefs)
+			getFieldInstance(fd,true);
+
+		for(fi in fieldInstances)
+			fi.tidy(_project);
+
+
+
+		return anyChange;
 	}
 
     public function getFieldInstance(fieldDef:data.def.FieldDef, createIfMissing:Bool) {

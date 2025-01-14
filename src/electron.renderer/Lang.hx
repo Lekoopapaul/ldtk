@@ -58,6 +58,7 @@ class Lang {
 			case F_Color: t._("Color");
 			case F_Float: t._("Float");
 			case F_String: t._("String");
+			case F_Struct(name): t._("Struct");
 			case F_Text: t._("Multilines");
 			case F_Bool: t._("Boolean");
 			case F_Point: t._("Point");
@@ -75,6 +76,7 @@ class Lang {
 			case F_Float: t._("1.0");
 			case F_String: t._("\"Ab\"");
 			case F_Text: t._("\"Ab\\n\"");
+			case F_Struct(name): t._("Strc");
 			case F_Bool: t._("✔");
 			case F_Point: t._("X::sep::Y", { sep:Const.POINT_SEPARATOR });
 			case F_Enum(name): t._("Enu");
