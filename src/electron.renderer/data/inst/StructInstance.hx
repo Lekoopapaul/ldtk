@@ -16,7 +16,7 @@ class StructInstance{
 	}
 
     @:keep public function toString() {
-		return 'StructInst "${def.identifier}"';
+		return 'StructInst "${def == null ? "null": def.identifier}"';
 	}
 
     public function toJson() : ldtk.Json.StructInstanceJson {

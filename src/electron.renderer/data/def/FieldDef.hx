@@ -97,7 +97,8 @@ class FieldDef {
 			case F_Float:
 			case F_String:
 			case F_Text:
-			case F_Struct(structIid): 
+			case F_Struct(structIid):
+				
 			case F_Bool:
 			case F_Color:
 			case F_Enum(enumDefUid):
@@ -349,6 +350,7 @@ class FieldDef {
 			case V_Float(v): v;
 			case V_Bool(v): v;
 			case V_String(v): v;
+			case V_Struct(v): v;
 		}
 	}
 
@@ -481,9 +483,7 @@ class FieldDef {
 		require(F_Struct(null));
 
 		switch defaultOverride {
-			case V_String(v):
-				var sd = getStructDefinition();
-				return sd==null ? null : StructInstance.fromJson(_project,haxe.Json.parse(v));
+			case V_Struct(v): return v;
 
 			case _:
 				return null;
@@ -506,7 +506,7 @@ class FieldDef {
 			case F_Struct(structDefUid):
 				var def: StructInstanceJson = haxe.Json.parse(rawDef);
 				if(def.defUid == structDefUid)
-					defaultOverride = V_String(StringTools.trim(rawDef));
+					defaultOverride = V_Struct(StructInstance.fromJson(_project,def));
 
 			case F_Color:
 				var def = dn.legacy.Color.hexToInt(rawDef);
@@ -790,6 +790,11 @@ class FieldDef {
 			}
 		}
 
+		if(isStruct()){
+			var v = getStructDefault();
+			if(v != null)v.tidy(_project);
+		}
+		
 		if( tilesetUid!=null && p.defs.getTilesetDef(tilesetUid)==null ) {
 			App.LOG.add("tidy", "Lost tileset UID in FieldDef "+toString());
 			tilesetUid = null;

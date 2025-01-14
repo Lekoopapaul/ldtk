@@ -303,10 +303,13 @@ class LevelRender extends dn.Process {
 			case ToolOptionChanged:
 			case ToolValueSelected:
 
-			case EnumDefAdded:
-			case EnumDefSorted:
+			case EnumDefAdded,StructDefAdded:
+			case EnumDefSorted,StructDefSorted:
 			
-			case StructDefAdded, StructDefRemoved, StructDefChanged, StructDefSorted:
+			case StructDefRemoved, StructDefChanged:
+				for( li in editor.curLevel.layerInstances)
+					if( li.def.type==Entities )
+						invalidateLayer(li);
 		}
 
 		for(lr in layerRenders)

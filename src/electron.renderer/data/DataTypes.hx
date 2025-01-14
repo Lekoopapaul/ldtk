@@ -1,5 +1,7 @@
 package data;
 
+import data.inst.StructInstance;
+
 /*
 	WARNING: all the follow types are serialized when saving a Project:
 		- do not remove Enum values,
@@ -20,6 +22,7 @@ enum ValueWrapper {
 	V_Float(v:Float);
 	V_Bool(v:Bool);
 	V_String(v:String);
+	V_Struct(v:StructInstance);
 }
 
 typedef TilesetSelection = {

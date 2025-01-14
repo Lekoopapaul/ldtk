@@ -97,6 +97,9 @@ class EntityInstanceEditor extends dn.Process {
 
 			case EnumDefRemoved, EnumDefChanged, EnumDefSorted, EnumDefValueRemoved:
 				updateAllForms();
+			
+			case StructDefRemoved, StructDefChanged, StructDefSorted:
+				updateAllForms();
 
 			case EntityInstanceRemoved(ei):
 				if( ei==this.ei )

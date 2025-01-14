@@ -1,5 +1,6 @@
 package data.inst;
 
+import haxe.Json;
 import js.Browser;
 import data.DataTypes;
 
@@ -46,7 +47,15 @@ class FieldInstance {
 							val = V_String(v);
 						case _:
 					}
-
+				if(fi.def.type.getIndex() == ldtk.Json.FieldType.F_Struct(null).getIndex())
+				switch val {
+						case null:
+						case V_String(v):
+							v = JsonTools.unescapeString(v);
+							val = V_Struct(StructInstance.fromJson(project,haxe.Json.parse(v)));
+						case _:
+					}
+					
 				fi.internalValues.push( val );
 			}
 		}
@@ -80,6 +89,8 @@ class FieldInstance {
 
 					case V_String(v):
 						JsonTools.writeEnum( V_String( JsonTools.escapeString(v) ), true);
+					case V_Struct(v):
+						JsonTools.writeEnum(V_String(JsonTools.escapeString(haxe.Json.stringify(v.toJson()))),true);
 				}
 			}),
 
@@ -160,7 +171,7 @@ class FieldInstance {
 				case F_Path: return getFilePath(arrayIdx)==def.getDefault();
 				case F_Tile: return getFilePath(arrayIdx)==def.getDefault();
 				case F_EntityRef: return false;
-				case F_Struct(structIid): return getStructValue(arrayIdx) == def.getStructDefault();
+				case F_Struct(structDefUid): return getStructValue(arrayIdx) == def.getStructDefault();
 			}
 		}
 	}
@@ -178,12 +189,12 @@ class FieldInstance {
 					v = def.iClamp(v);
 					setInternal(arrayIdx, V_Int(v) );
 				}
-			case F_Struct(structIid):
+			case F_Struct(structDefUid):
 				raw = StringTools.trim(raw);
 				if(raw.length == 0)
 					setInternal(arrayIdx,null);
 				else 
-					setInternal(arrayIdx,V_String(raw));
+					setInternal(arrayIdx,V_Struct(StructInstance.fromJson(_project,haxe.Json.parse(raw))));
 
 			case F_Color:
 				setInternal( arrayIdx, raw==null ? null : V_Int(dn.legacy.Color.hexToInt(raw)) );
@@ -774,7 +785,8 @@ class FieldInstance {
 	public function getStructValue(arrayIdx:Int) : Null<StructInstance> {
 		require( F_Struct(null) );
 		return isUsingDefault(arrayIdx) ? def.getStructDefault() : switch internalValues[arrayIdx] {
-			case V_String(v): StructInstance.fromJson(_project,haxe.Json.parse(v));
+			case V_Struct(v): v;
+			case V_String(v): Browser.console.log(v); throw "string!";
 			case _: throw "unexpected";
 		}
 	}
@@ -875,8 +887,11 @@ class FieldInstance {
 					}
 			case F_Struct(structIid):
 				for(i in 0...getArrayLength())
-					if(getStructValue(i)!= null )
+					if(getStructValue(i)!= null && getStructValue(i).def != null)
 						anyChange = getStructValue(i).tidy(_project);
+					else
+						parseValue(i,null);
+						anyChange = true;
 		}
 
 		return anyChange;

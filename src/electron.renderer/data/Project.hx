@@ -1184,7 +1184,7 @@ class Project {
 	}
 
 	public function isStructDefUsed(structDef:data.def.StructDef) {
-		/**
+		
 		for( ed in defs.entities )
 		for( fd in ed.fieldDefs )
 			switch fd.type {
@@ -1193,7 +1193,14 @@ class Project {
 						return true;
 				case _:
 			}
-		**/
+		for(fd in defs.levelFields)
+			switch fd.type {
+				case F_Struct(structDefUid):
+					if( structDefUid==structDef.uid )
+						return true;
+				case _:
+			}
+		
 		return false;
 	}
 

@@ -296,6 +296,9 @@ class EntityDef {
 	public function tidy(p:data.Project) {
 		_project = p;
 
+		// Field defs
+		Definitions.tidyFieldDefsArray(p, fieldDefs, this.toString());
+
 		// Migrate old tileId to tileRect
 		if( _oldTileId!=null && tileRect==null ) {
 			var td = p.defs.getTilesetDef(tilesetId);
@@ -313,7 +316,6 @@ class EntityDef {
 			renderMode = Rectangle;
 		}
 
-		// Field defs
-		Definitions.tidyFieldDefsArray(p, fieldDefs, this.toString());
+		
 	}
 }

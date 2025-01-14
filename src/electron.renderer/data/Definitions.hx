@@ -1,5 +1,6 @@
 package data;
 
+import js.Browser;
 import data.DataTypes;
 
 class Definitions {
@@ -133,8 +134,17 @@ class Definitions {
 			var fd = fieldDefs[i];
 			switch fd.type {
 				case F_Enum(enumDefUid):
-					if( p.defs.getEnumDef(enumDefUid)==null ) {
+					if( !p.defs.existsEnumDef(enumDefUid)) {
 						App.LOG.add("tidy", 'Removed lost enum field of $fd in $ctx');
+						fieldDefs.splice(i,1);
+						continue;
+					}
+
+				case F_Struct(structDefUid):
+					Browser.console.log(structDefUid);
+					if(!p.defs.existsStructDef(structDefUid)){
+						Browser.console.log(p.defs.getStructDef(structDefUid));
+						App.LOG.add("tidy",'Removed lost struct field of $fd in $ctx');
 						fieldDefs.splice(i,1);
 						continue;
 					}
@@ -157,6 +167,9 @@ class Definitions {
 
 		for(ld in layers)
 			ld.tidy(p);
+
+		for(sd in structs)
+			sd.tidy();
 
 		for( ed in enums )
 			ed.tidy(p);
@@ -842,6 +855,22 @@ class Definitions {
 		return uid!=null ? fastStructAccessInt.get(uid)
 			: id!=null ? fastStructAccessStr.get(id)
 			: null;
+	}
+
+	public function existsStructDef(uid:Int) : Bool {
+		for (def in structs) {
+			if(def.uid == uid)
+				return true;
+		};
+		return false;
+	}
+
+	public function existsEnumDef(uid:Int) : Bool {
+		for (def in enums) {
+			if(def.uid == uid)
+				return true;
+		};
+		return false;
 	}
 
 

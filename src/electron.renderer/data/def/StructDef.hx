@@ -93,4 +93,12 @@ class StructDef{
 		}
 	}
 
+	public function tidy(){
+
+		// Field defs
+		Definitions.tidyFieldDefsArray(_project, fieldDefs, this.toString());
+
+		tags.tidy();
+	}
+
 }

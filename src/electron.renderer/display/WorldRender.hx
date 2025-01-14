@@ -198,6 +198,9 @@ class WorldRender extends dn.Process {
 			case EnumDefChanged, EnumDefAdded, EnumDefRemoved, EnumDefValueRemoved:
 				invalidateAllLevelFields();
 
+			case StructDefAdded,StructDefChanged,StructDefRemoved:
+				invalidateAllLevelFields();
+
 			case EntityFieldInstanceChanged(ei,fi):
 
 			case LevelFieldInstanceChanged(l,fi):

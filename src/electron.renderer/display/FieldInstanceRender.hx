@@ -553,7 +553,7 @@ class FieldInstanceRender {
 				case F_Bool:
 				case F_Color:
 				case F_Enum(enumDefUid):
-				case F_Struct(structDefUid):
+				case F_Struct(structDefUid): 
 				case F_Point:
 				case F_Path: multiLinesArray = true;
 				case F_EntityRef: multiLinesArray = true; showArrayBrackets = false;

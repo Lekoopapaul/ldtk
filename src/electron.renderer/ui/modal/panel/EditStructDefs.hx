@@ -1,5 +1,6 @@
 package ui.modal.panel;
 
+import js.Browser;
 import data.DataTypes;
 
 class EditStructDefs extends ui.modal.Panel{
@@ -179,6 +180,8 @@ class EditStructDefs extends ui.modal.Panel{
 			selectStruct( project.defs.structs[0] );
 		}
 		var isUsed = project.isStructDefUsed(ed);
+		Browser.console.log(isUsed);
+		
 		if( !isUsed && !fromContext )
 			new ui.modal.dialog.Confirm(Lang.t._("This struct is not used and can be safely removed."), _delete);
 		else if( isUsed )
