@@ -234,22 +234,53 @@ class FieldInstanceRender {
 			if( !fi.def.editorShowInWorld && Editor.ME.worldMode )
 				continue;
 
-			var fr = renderField(fi, baseColor, ctx);
-			if( fr==null || fr.value.numChildren==0 )
-				continue;
+			switch (fi.def.type){
+				case F_Struct(structDefUid):
+					for (i in 0...fi.getArrayLength()) {
+						var struct = fi.getStructValue(i);
 
-			allRenders.push(fr);
-			var row = new h2d.Flow(parent);
-			row.verticalAlign = Middle;
-			row.setScale( settings.v.editorUiScale*fi.def.editorDisplayScale );
-			if( fr.label.numChildren>0 ) {
-				row.addChild(fr.label);
-				row.addSpacing(6);
-				row.paddingBottom = 2;
+						if(struct == null)
+							continue;
+
+						for (instance in struct.fieldInstances) {
+							var fr = renderField(instance, baseColor, ctx);
+
+							if( fr==null || fr.value.numChildren==0 )
+								continue;
+			
+							allRenders.push(fr);
+							var row = new h2d.Flow(parent);
+							row.verticalAlign = Middle;
+							row.setScale( settings.v.editorUiScale*fi.def.editorDisplayScale );
+							if( fr.label.numChildren>0 ) {
+								row.addChild(fr.label);
+								row.addSpacing(6);
+								row.paddingBottom = 2;
+							}
+							else
+								row.horizontalAlign = Middle;
+								row.addChild(fr.value);
+						}
+					}
+				case _:
+					var fr = renderField(fi, baseColor, ctx);
+
+					if( fr==null || fr.value.numChildren==0 )
+						continue;
+		
+					allRenders.push(fr);
+					var row = new h2d.Flow(parent);
+					row.verticalAlign = Middle;
+					row.setScale( settings.v.editorUiScale*fi.def.editorDisplayScale );
+					if( fr.label.numChildren>0 ) {
+						row.addChild(fr.label);
+						row.addSpacing(6);
+						row.paddingBottom = 2;
+					}
+					else
+						row.horizontalAlign = Middle;
+					row.addChild(fr.value);
 			}
-			else
-				row.horizontalAlign = Middle;
-			row.addChild(fr.value);
 		}
 
 		parent.reflow();

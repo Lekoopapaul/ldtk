@@ -23,7 +23,7 @@ class EditStructDefs extends ui.modal.Panel{
 		});
 
 		// Create fields editor
-		fieldsForm = new ui.FieldDefsForm( FP_Struct(null) );
+		fieldsForm = new ui.FieldDefsForm( FP_Struct(curStruct) );
 		jContent.find("#fields").replaceWith( fieldsForm.jWrapper );
 
 		// Create quick search
@@ -180,7 +180,6 @@ class EditStructDefs extends ui.modal.Panel{
 			selectStruct( project.defs.structs[0] );
 		}
 		var isUsed = project.isStructDefUsed(ed);
-		Browser.console.log(isUsed);
 		
 		if( !isUsed && !fromContext )
 			new ui.modal.dialog.Confirm(Lang.t._("This struct is not used and can be safely removed."), _delete);

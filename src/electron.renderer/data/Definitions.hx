@@ -141,9 +141,7 @@ class Definitions {
 					}
 
 				case F_Struct(structDefUid):
-					Browser.console.log(structDefUid);
 					if(!p.defs.existsStructDef(structDefUid)){
-						Browser.console.log(p.defs.getStructDef(structDefUid));
 						App.LOG.add("tidy",'Removed lost struct field of $fd in $ctx');
 						fieldDefs.splice(i,1);
 						continue;

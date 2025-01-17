@@ -102,7 +102,7 @@ class FieldTypeConverter {
 
 	public static inline function getAllConvertors(fd:data.def.FieldDef) {
 		var all = CONVERTORS.filter( (c)->c.from==null || c.from.equals(fd.type) );
-		if( !fd.isArray )
+		if( !fd.isArray && fd.type.getIndex() != ldtk.Json.FieldType.F_Struct(null).getIndex())
 			all.insert(0,TO_ARRAY_CONVERTOR);
 		return all;
 	}

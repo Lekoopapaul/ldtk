@@ -98,7 +98,6 @@ class FieldDef {
 			case F_String:
 			case F_Text:
 			case F_Struct(structIid):
-				
 			case F_Bool:
 			case F_Color:
 			case F_Enum(enumDefUid):
@@ -239,7 +238,7 @@ class FieldDef {
 			case F_Bool: "#cd88dd";
 			case F_Color: "#99d367";
 			case F_Enum(enumDefUid): "#ff4b4b";
-			case F_Struct(structIid): "#3234a8";
+			case F_Struct(structIid): "#ff4b4b";
 			case F_Path: "#7779c9";
 			case F_Point: "#7779c9";
 			case F_EntityRef: "#7779c9";

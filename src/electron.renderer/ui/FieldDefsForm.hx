@@ -1,5 +1,6 @@
 package ui;
 
+import js.Browser;
 import data.def.FieldDef;
 
 enum FieldParentType {
@@ -179,7 +180,20 @@ class FieldDefsForm {
 					for(group in tagGroups) {
 						if( tagGroups.length>1 )
 							ctx.addTitle( group.tag==null ? L._Untagged() : L.untranslated(group.tag) );
-						for(sd in group.all) {
+						for(sd in group.all.filter(x -> 
+							{
+								if(isLevelField())
+									return x.fieldDefs.filter(
+										y -> y.type.getIndex() == ldtk.Json.FieldType.F_Point.getIndex() 
+										|| y.type.getIndex() == ldtk.Json.FieldType.F_EntityRef.getIndex()
+										|| y.type.getIndex() == ldtk.Json.FieldType.F_Struct(null).getIndex()).length <= 0;
+								else if(isStructField())
+									return getStructParent().uid != x.uid && x.fieldDefs.filter(y -> 
+										y.type.getIndex() == ldtk.Json.FieldType.F_Struct(null).getIndex()
+									).length <= 0;
+								else
+									return true;
+							})) {
 							ctx.addAction({
 								label: L.untranslated(sd.identifier),
 								cb: ()->_create(ev, F_Struct(sd.uid)),
@@ -196,6 +210,7 @@ class FieldDefsForm {
 			var fd = new FieldDef(project, project.generateUniqueId_int(), type, isArray);
 			var baseName = switch type {
 				case F_Enum(enumDefUid): project.defs.getEnumDef(enumDefUid).identifier;
+				case F_Struct(structDefUid): project.defs.getStructDef(structDefUid).identifier;
 				case _: L.getFieldType(type);
 			}
 			if( isArray )
@@ -214,12 +229,12 @@ class FieldDefsForm {
 		var types : Array<ldtk.Json.FieldType> = [
 			F_Int, F_Float, F_Bool, F_String, F_Text, F_Color, F_Enum(null), F_Path, F_Tile,
 		];
-		if(!isStructField())
-			types.push(F_Struct(null));
+			
 		if( isEntityField() || isStructField()) {
-			types.push(F_EntityRef);
 			types.push(F_Point);
+			types.push(F_EntityRef);
 		}
+		types.push(F_Struct(null));
 
 		for(type in types) {
 			var b = new J("<button/>");
@@ -424,6 +439,8 @@ class FieldDefsForm {
 		jForm.addClass("type-"+curField.type.getName());
 		if( isLevelField() )
 			jForm.addClass("type-level");
+		else if(isStructField())
+			jForm.addClass("type-struct");
 		else
 			jForm.addClass("type-entity");
 
@@ -913,6 +930,7 @@ class FieldDefsForm {
 				});
 
 			case F_Struct(name):
+				 
 
 			case F_Color:
 				var defInput = jForm.find("input[name=cDef]");
@@ -944,7 +962,7 @@ class FieldDefsForm {
 		var i = Input.linkToHtmlInput( curField.exportToToc, jForm.find("input#exportToToc") );
 		i.onChange = onFieldChange;
 		i.setEnabled( isEntityField() && getEntityParent().exportToToc );
-
+		Browser.console.log(isEntityField() && getEntityParent().exportToToc);
 		// Searchable
 		var i = Input.linkToHtmlInput( curField.searchable, jForm.find("input#searchable") );
 		i.onChange = onFieldChange;

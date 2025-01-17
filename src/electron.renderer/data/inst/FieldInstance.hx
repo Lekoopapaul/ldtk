@@ -786,7 +786,6 @@ class FieldInstance {
 		require( F_Struct(null) );
 		return isUsingDefault(arrayIdx) ? def.getStructDefault() : switch internalValues[arrayIdx] {
 			case V_Struct(v): v;
-			case V_String(v): Browser.console.log(v); throw "string!";
 			case _: throw "unexpected";
 		}
 	}

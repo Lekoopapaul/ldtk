@@ -7228,6 +7228,7 @@ canvas#webgl {
 		*[class*="F_"],
 		&.type-level .onlyEntity,
 		&.type-entity .onlyLevel,
+		&.type-struct .onlyEntity,
 		*[class="NotArray"],
 		*[class="Array"] {
 			display: none;
