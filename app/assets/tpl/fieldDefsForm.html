@@ -54,7 +54,7 @@
 	</dd>
 
 
-	<dt class="full F_Int F_Float F_String F_Text F_Enum F_Bool F_Color F_Path F_Point F_EntityRef F_Tile"> <h3>Value specifications</h3> </dt>
+	<dt class="full F_Int F_Float F_String F_Text F_Enum F_Bool F_Color F_Path F_Point F_EntityRef F_Tile Array"> <h3>Value specifications</h3> </dt>
 
 	<dt class="F_Int F_Float F_String">
 		<label for="fDef">Default value</label>
@@ -242,16 +242,16 @@
 		<input type="text" name="arrayMaxLength" id="arrayMaxLength" placeholder="max length" title="Max array length"/>
 	</dd>
 
-	<dt class="full"> <h3>Display</h3> </dt>
+	<dt class="full F_Int F_Float F_String F_Text F_Enum F_Bool F_Color F_Path F_Point F_EntityRef F_Tile" > <h3>Display</h3> </dt>
 
-	<dt>
+	<dt class="onlyEntity onlyLevel">
 		<label for="editorDisplayMode">Display in editor</label>
 		<info>
 			Customize how values for this field should be displayed in the editor view.
 			A quick recommendation here: don't display too many entity fields or the editor view would become really cluttered.
 		</info>
 	</dt>
-	<dd class="displayMode">
+	<dd class="displayMode onlyEntity onlyLevel">
 		<select name="editorDisplayMode" id="editorDisplayMode"></select>
 		<select name="editorDisplayPos" id="editorDisplayPos"></select>
 		<select name="editorLinkStyle" id="editorLinkStyle"></select>
@@ -278,7 +278,7 @@
 	</dd>
 
 
-	<dt>
+	<dt class="onlyLevel onlyEntity">
 		<label for="editorAlwaysShow">Always show</label>
 		<info>
 			If checked, the value will always be displayed in editor view, even if it is using default value.
@@ -286,7 +286,7 @@
 			Only applies if any display mode was selected above.
 		</info>
 	</dt>
-	<dd>
+	<dd class="onlyLevel onlyEntity">
 		<input type="checkbox" name="editorAlwaysShow" id="editorAlwaysShow"/>
 	</dd>
 
@@ -300,19 +300,23 @@
 	</dd>
 
 
-	<dt class="F_Color F_Enum">
-		<label for="bDef">Override ::parentType:: color</label>
-		<info class="F_Color">
-			If enabled, this color will override the default ::parentType:: color when displayed in the editor view.
-			For arrays, the first valid value of the array will be used.
-		</info>
-		<info class="F_Enum">
-			If enabled, the color of the Enum value (if any) will override the default ::parentType:: color when displayed in the editor view.
-			For arrays, the first valid value of the array will be used.
-		</info>
-	</dt>
-	<dd>
-		<input type="checkbox" name="useForSmartColor" id="useForSmartColor"/>
-	</dd>
+	
+
+	<div class="onlyLevel onlyEntity">
+		<dt class="F_Color F_Enum">
+			<label for="bDef">Override ::parentType:: color</label>
+			<info class="F_Color">
+				If enabled, this color will override the default ::parentType:: color when displayed in the editor view.
+				For arrays, the first valid value of the array will be used.
+			</info>
+			<info class="F_Enum">
+				If enabled, the color of the Enum value (if any) will override the default ::parentType:: color when displayed in the editor view.
+				For arrays, the first valid value of the array will be used.
+			</info>
+		</dt>
+		<dd >
+			<input type="checkbox" name="useForSmartColor" id="useForSmartColor"/>
+		</dd>
+	</div>
 
 </dl>

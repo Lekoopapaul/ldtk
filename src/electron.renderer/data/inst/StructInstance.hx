@@ -60,11 +60,11 @@ class StructInstance{
 		_project = p;
 		_project.markIidAsUsed(iid);
 		var anyChange = false;
-		Browser.console.log("Tidy StructInstance");
 		// Remove field instances whose def was removed
 		for(e in fieldInstances.keyValueIterator())
 			if( e.value.def==null ) {
 				App.LOG.add("tidy", 'Removed lost fieldInstance in $this');
+				Browser.console.log('Removed fieldInstance $this ' + e.value.defUid);
 				fieldInstances.remove(e.key);
 				anyChange = true;
 			}

@@ -901,7 +901,12 @@ class FieldInstance {
 				while( i<getArrayLength() )
 				{
 					if(getStructValue(i)!= null && getStructValue(i).def != null)
-						anyChange = getStructValue(i).tidy(_project);
+					{
+						var value = getStructValue(i);
+						anyChange = value.tidy(_project);
+						if(anyChange)
+							setInternal(i,V_Struct(value.toJson()));
+					}
 					else
 					{
 						if( def.isArray ) {
@@ -913,7 +918,8 @@ class FieldInstance {
 					i++;
 				}
 		}
-
+		Browser.console.log(anyChange);
+		Browser.console.log(internalValues);
 		return anyChange;
 	}
 }
