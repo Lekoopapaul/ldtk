@@ -1,5 +1,7 @@
 package data.inst;
 
+import js.Browser;
+
 class StructInstance{
     public var _project : Project;
     public var def(get,never) : data.def.StructDef; inline function get_def() return _project.defs.getStructDef(defUid);
@@ -37,7 +39,7 @@ class StructInstance{
 		return json;
 	}
 
-    public static function fromJson(project:Project, json:ldtk.Json.StructInstanceJson) {
+    public static function fromJson(project:Project, json:ldtk.Json.StructInstanceJson): StructInstance {
 		if( (cast json).defId!=null ) // Convert renamed defId
 			json.defUid = (cast json).defId;
 
@@ -58,20 +60,25 @@ class StructInstance{
 		_project = p;
 		_project.markIidAsUsed(iid);
 		var anyChange = false;
-
+		Browser.console.log("Tidy StructInstance");
 		// Remove field instances whose def was removed
 		for(e in fieldInstances.keyValueIterator())
 			if( e.value.def==null ) {
 				App.LOG.add("tidy", 'Removed lost fieldInstance in $this');
 				fieldInstances.remove(e.key);
+				anyChange = true;
 			}
 
 		// Create missing field instances
 		for(fd in def.fieldDefs)
+		{
+			anyChange = true;
 			getFieldInstance(fd,true);
+		}
+			
 
 		for(fi in fieldInstances)
-			fi.tidy(_project);
+			if (fi.tidy(_project) == true) anyChange = true; 
 
 
 

@@ -285,6 +285,8 @@ class LevelRender extends dn.Process {
 
 			case LevelFieldInstanceChanged(l,fi):
 
+			case FieldDefaultFieldInstanceChanged(f,fi):
+				
 			case EntityFieldInstanceChanged(ei,fi):
 				invalidateLayer(ei._li);
 

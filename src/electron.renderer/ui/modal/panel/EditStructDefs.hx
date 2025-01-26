@@ -185,7 +185,7 @@ class EditStructDefs extends ui.modal.Panel{
 			new ui.modal.dialog.Confirm(Lang.t._("This struct is not used and can be safely removed."), _delete);
 		else if( isUsed )
 			new ui.modal.dialog.Confirm(
-				Lang.t._("WARNING! This STRUCT is used in one or more entity/level fields. These fields will also be deleted!"),
+				Lang.t._("WARNING! This STRUCT is used in one or more struct/entity/level fields. These fields will also be deleted!"),
 				true,
 				_delete
 			);

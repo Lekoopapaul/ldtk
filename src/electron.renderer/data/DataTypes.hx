@@ -1,6 +1,6 @@
 package data;
 
-import data.inst.StructInstance;
+import ldtk.Json.StructInstanceJson;
 
 /*
 	WARNING: all the follow types are serialized when saving a Project:
@@ -22,7 +22,7 @@ enum ValueWrapper {
 	V_Float(v:Float);
 	V_Bool(v:Bool);
 	V_String(v:String);
-	V_Struct(v:StructInstance);
+	V_Struct(v:StructInstanceJson);
 }
 
 typedef TilesetSelection = {

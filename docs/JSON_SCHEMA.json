@@ -259,6 +259,9 @@
 					"TocInstanceData": {
 						"$ref": "#/otherTypes/TocInstanceData"
 					},
+					"StructDef": {
+						"$ref": "#/otherTypes/StructDef"
+					},
 					"NeighbourLevel": {
 						"$ref": "#/otherTypes/NeighbourLevel"
 					},
@@ -270,6 +273,9 @@
 					},
 					"EntityReferenceInfos": {
 						"$ref": "#/otherTypes/EntityReferenceInfos"
+					},
+					"StructInstance": {
+						"$ref": "#/otherTypes/StructInstance"
 					},
 					"TileCustomMetadata": {
 						"$ref": "#/otherTypes/TileCustomMetadata"
@@ -648,6 +654,7 @@
 				"externalEnums",
 				"layers",
 				"levelFields",
+				"structs",
 				"tilesets"
 			],
 			"additionalProperties": false,
@@ -656,6 +663,15 @@
 					"description": "All tilesets",
 					"items": {
 						"$ref": "#/otherTypes/TilesetDef"
+					},
+					"type": [
+						"array"
+					]
+				},
+				"structs": {
+					"description": "All structs definitions, including their custom fields",
+					"items": {
+						"$ref": "#/otherTypes/StructDef"
 					},
 					"type": [
 						"array"
@@ -1266,7 +1282,7 @@
 					]
 				},
 				"type": {
-					"description": "Internal enum representing the possible field types. Possible values: F_Int, F_Float, F_String, F_Text, F_Bool, F_Color, F_Enum(...), F_Point, F_Path, F_EntityRef, F_Tile",
+					"description": "Internal enum representing the possible field types. Possible values: F_Int, F_Float, F_String, F_Text, F_Bool, F_Color, F_Enum(...), F_Struct(...), F_Point, F_Path, F_EntityRef, F_Tile",
 					"type": [
 						"string"
 					]
@@ -1463,7 +1479,7 @@
 					]
 				},
 				"tileRenderMode": {
-					"description": "An enum describing how the the Entity tile is rendered inside the Entity bounds. Possible values: `Cover`, `FitInside`, `Repeat`, `Stretch`, `FullSizeCropped`, `FullSizeUncropped`, `NineSlice`",
+					"description": "An enum describing how the Entity tile is rendered inside the Entity bounds. Possible values: `Cover`, `FitInside`, `Repeat`, `Stretch`, `FullSizeCropped`, `FullSizeUncropped`, `NineSlice`",
 					"enum": [
 						"Cover",
 						"FitInside",
@@ -1813,6 +1829,53 @@
 				"object"
 			]
 		},
+		"StructDef": {
+			"title": "Struct definition",
+			"required": [
+				"identifier",
+				"uid",
+				"fieldDefs",
+				"tags"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"fieldDefs": {
+					"description": "Array of field definitions",
+					"items": {
+						"$ref": "#/otherTypes/FieldDef"
+					},
+					"type": [
+						"array"
+					]
+				},
+				"uid": {
+					"description": "Unique Int identifier",
+					"type": [
+						"integer"
+					]
+				},
+				"identifier": {
+					"description": "User defined unique identifier",
+					"type": [
+						"string"
+					]
+				},
+				"tags": {
+					"description": "An array of strings that classifies this entity",
+					"items": {
+						"type": [
+							"string"
+						]
+					},
+					"type": [
+						"array"
+					]
+				}
+			},
+			"type": [
+				"object"
+			]
+		},
 		"NeighbourLevel": {
 			"description": "Nearby level info",
 			"title": "Neighbour level",
@@ -2155,6 +2218,48 @@
 					"description": "IID of the Level containing the refered EntityInstance",
 					"type": [
 						"string"
+					]
+				}
+			},
+			"type": [
+				"object"
+			]
+		},
+		"StructInstance": {
+			"title": "Struct instances",
+			"required": [
+				"__identifier",
+				"defUid",
+				"iid",
+				"fieldInstances"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"iid": {
+					"description": "Unique instance identifier",
+					"type": [
+						"string"
+					]
+				},
+				"defUid": {
+					"description": "Definition Unique Int identifier",
+					"type": [
+						"integer"
+					]
+				},
+				"__identifier": {
+					"description": "User defined unique identifier",
+					"type": [
+						"string"
+					]
+				},
+				"fieldInstances": {
+					"description": "Array of field definitions",
+					"items": {
+						"$ref": "#/otherTypes/FieldInstance"
+					},
+					"type": [
+						"array"
 					]
 				}
 			},

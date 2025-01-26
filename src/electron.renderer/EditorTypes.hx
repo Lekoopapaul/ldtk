@@ -82,6 +82,7 @@ enum GlobalEvent {
 	FieldDefChanged(fd:data.def.FieldDef);
 	FieldDefSorted;
 	LevelFieldInstanceChanged(l:data.Level, fi:data.inst.FieldInstance);
+	FieldDefaultFieldInstanceChanged(f:data.def.FieldDef,fi:data.inst.FieldInstance);
 	EntityFieldInstanceChanged(ei:data.inst.EntityInstance, fi:data.inst.FieldInstance);
 
 	EnumDefAdded;

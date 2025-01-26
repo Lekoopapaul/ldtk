@@ -1,5 +1,6 @@
 package data.def;
 
+import ldtk.Json.FieldType;
 import ldtk.Json.StructInstanceJson;
 import ldtk.Json.EntityInstanceJson;
 import data.inst.StructInstance;
@@ -121,6 +122,10 @@ class FieldDef {
 		};
 	}
 
+	public function get_project(){
+		return _project;
+	}
+
 	function set_identifier(id:String) {
 		id = Project.cleanupIdentifier(id, Free);
 		if( id==null )
@@ -185,7 +190,7 @@ class FieldDef {
 
 		return o;
 	}
-
+//
 	public function toJson() : ldtk.Json.FieldDefJson {
 		return {
 			identifier: identifier,
@@ -214,7 +219,10 @@ class FieldDef {
 			max: max==null ? null : JsonTools.writeFloat(max),
 			regex: JsonTools.escapeString(regex),
 			acceptFileTypes: type!=F_Path ? null : acceptFileTypes,
-			defaultOverride: JsonTools.writeEnum(defaultOverride, true),
+			defaultOverride: switch (defaultOverride){
+				case V_Struct(structInstance): JsonTools.writeEnum(V_Struct(structInstance), true);
+				case _: JsonTools.writeEnum(defaultOverride, true);
+			},
 			textLanguageMode: type!=F_Text ? null : JsonTools.writeEnum(textLanguageMode, true),
 			symmetricalRef: symmetricalRef,
 			autoChainRef: autoChainRef,
@@ -482,8 +490,9 @@ class FieldDef {
 		require(F_Struct(null));
 
 		switch defaultOverride {
-			case V_Struct(v): return v;
-
+			case V_Struct(v): 
+				
+				return StructInstance.fromJson(_project,v);
 			case _:
 				return null;
 		}
@@ -505,7 +514,7 @@ class FieldDef {
 			case F_Struct(structDefUid):
 				var def: StructInstanceJson = haxe.Json.parse(rawDef);
 				if(def.defUid == structDefUid)
-					defaultOverride = V_Struct(StructInstance.fromJson(_project,def));
+					defaultOverride = V_Struct(def);
 
 			case F_Color:
 				var def = dn.legacy.Color.hexToInt(rawDef);

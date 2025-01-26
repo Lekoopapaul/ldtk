@@ -2209,6 +2209,7 @@ class Editor extends Page {
 			case FieldDefSorted: invalidateAllLevelsCache();
 			case LevelFieldInstanceChanged(l, fi): invalidateLevelCache(l);
 			case EntityFieldInstanceChanged(ei, fi): invalidateLevelCache(ei._li.level);
+			case FieldDefaultFieldInstanceChanged(f, fi): 
 			case EnumDefAdded:
 			case EnumDefRemoved: invalidateAllLevelsCache();
 			case EnumDefChanged: invalidateAllLevelsCache();
@@ -2294,6 +2295,9 @@ class Editor extends Page {
 
 			case EntityFieldInstanceChanged(ei,fi):
 				ei._li.level.invalidateCachedError();
+
+			case FieldDefaultFieldInstanceChanged(f,fi):
+				
 
 			case EntityInstanceAdded(ei):
 				ei._li.level.invalidateCachedError();

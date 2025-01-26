@@ -204,6 +204,7 @@ Value | Type | Description
 `externalEnums` | Array&nbsp;of&nbsp;[Enum&nbsp;definition](#ldtk-EnumDefJson) | Note: external enums are exactly the same as `enums`, except they have a `relPath` to point to an external source file.
 `layers` | Array&nbsp;of&nbsp;[Layer&nbsp;definition](#ldtk-LayerDefJson) | All layer definitions
 `levelFields`<br/> ![Generic badge](https://img.shields.io/badge/Added_0.8.0-gray.svg)  | Array&nbsp;of&nbsp;[Field&nbsp;definition](#ldtk-FieldDefJson) | All custom fields available to all levels.
+`structs` | Array&nbsp;of&nbsp;[Struct&nbsp;definition](#ldtk-StructDefJson) | All structs definitions, including their custom fields
 `tilesets` | Array&nbsp;of&nbsp;[Tileset&nbsp;definition](#ldtk-TilesetDefJson) | All tilesets
 
 <a id="ldtk-LayerDefJson" name="ldtk-LayerDefJson"></a>
@@ -294,7 +295,7 @@ Value | Type | Description
 `pivotX` | Float | Pivot X coordinate (from 0 to 1.0)
 `pivotY` | Float | Pivot Y coordinate (from 0 to 1.0)
 `tileRect`<br/> ![Generic badge](https://img.shields.io/badge/Added_1.0.0-gray.svg)  | [Tileset&nbsp;rectangle](#ldtk-TilesetRect)&nbsp;*(can&nbsp;be&nbsp;`null`)* | An object representing a rectangle from an existing Tileset
-`tileRenderMode`<br/> ![Generic badge](https://img.shields.io/badge/Changed_0.8.1-gray.svg)  | Enum | An enum describing how the the Entity tile is rendered inside the Entity bounds.<br/> Possible values: `Cover`, `FitInside`, `Repeat`, `Stretch`, `FullSizeCropped`, `FullSizeUncropped`, `NineSlice`
+`tileRenderMode`<br/> ![Generic badge](https://img.shields.io/badge/Changed_0.8.1-gray.svg)  | Enum | An enum describing how the Entity tile is rendered inside the Entity bounds.<br/> Possible values: `Cover`, `FitInside`, `Repeat`, `Stretch`, `FullSizeCropped`, `FullSizeUncropped`, `NineSlice`
 `tilesetId` | Int&nbsp;*(can&nbsp;be&nbsp;`null`)* | Tileset ID used for optional tile display
 `uiTileRect`<br/> ![Generic badge](https://img.shields.io/badge/Added_1.4.0-gray.svg)  | [Tileset&nbsp;rectangle](#ldtk-TilesetRect)&nbsp;*(can&nbsp;be&nbsp;`null`)* | This tile overrides the one defined in `tileRect` in the UI
 `uid` | Int | Unique Int identifier
@@ -340,7 +341,7 @@ Value | Type | Description
 `max`<br/><sup class="only">Only *Int, Float*</sup><br/><sup class="internal">*Only used by editor*</sup> | Float&nbsp;*(can&nbsp;be&nbsp;`null`)* | Max limit for value, if applicable
 `min`<br/><sup class="only">Only *Int, Float*</sup><br/><sup class="internal">*Only used by editor*</sup> | Float&nbsp;*(can&nbsp;be&nbsp;`null`)* | Min limit for value, if applicable
 `regex`<br/><sup class="only">Only *String*</sup><br/><sup class="internal">*Only used by editor*</sup><br/> ![Generic badge](https://img.shields.io/badge/Added_0.6.2-gray.svg)  | String&nbsp;*(can&nbsp;be&nbsp;`null`)* | Optional regular expression that needs to be matched to accept values. Expected format: `/some_reg_ex/g`, with optional "i" flag.
-`type`<br/><sup class="internal">*Only used by editor*</sup> | String | Internal enum representing the possible field types. Possible values: F_Int, F_Float, F_String, F_Text, F_Bool, F_Color, F_Enum(...), F_Point, F_Path, F_EntityRef, F_Tile
+`type`<br/><sup class="internal">*Only used by editor*</sup> | String | Internal enum representing the possible field types. Possible values: F_Int, F_Float, F_String, F_Text, F_Bool, F_Color, F_Enum(...), F_Struct(...), F_Point, F_Path, F_EntityRef, F_Tile
 `uid`<br/><sup class="internal">*Only used by editor*</sup> | Int | Unique Int identifier
 `allowOutOfLevelRef`<br/><sup class="internal">*Only used by editor*</sup><br/> ![Generic badge](https://img.shields.io/badge/Added_1.0.0-gray.svg)  | Bool | 
 `allowedRefTags`<br/><sup class="internal">*Only used by editor*</sup><br/> ![Generic badge](https://img.shields.io/badge/Added_1.0.0-gray.svg)  | Array&nbsp;of&nbsp;String | 
@@ -421,3 +422,21 @@ Value | Type | Description
 `tileRect`<br/> ![Generic badge](https://img.shields.io/badge/Added_1.3.0-gray.svg)  | [Tileset&nbsp;rectangle](#ldtk-TilesetRect)&nbsp;*(can&nbsp;be&nbsp;`null`)* | Optional tileset rectangle to represents this value
 ~~`tileId`~~<br/><sup class="deprecated">*DEPRECATED!*</sup><br/> ![Generic badge](https://img.shields.io/badge/Removed_1.4.0-gray.svg)  | Int&nbsp;*(can&nbsp;be&nbsp;`null`)* | **WARNING**: this deprecated value is no longer exported since version 1.4.0<br/> <br/> Replaced by: `tileRect`
 ~~`__tileSrcRect`~~<br/><sup class="deprecated">*DEPRECATED!*</sup><br/> ![Generic badge](https://img.shields.io/badge/Added_0.4.0-gray.svg) ![Generic badge](https://img.shields.io/badge/Removed_1.4.0-gray.svg)  | Array&nbsp;of&nbsp;Int&nbsp;*(can&nbsp;be&nbsp;`null`)* | **WARNING**: this deprecated value is no longer exported since version 1.4.0<br/> <br/> Replaced by: `tileRect`
+
+<a id="ldtk-StructInstanceJson" name="ldtk-StructInstanceJson"></a>
+## 3.5. Struct instances  ![Generic badge](https://img.shields.io/badge/Added_1.3.4-gray.svg) 
+Value | Type | Description
+-- | -- | --
+`__identifier` | String | User defined unique identifier
+`defUid` | Int | Definition Unique Int identifier
+`iid` | String | Unique instance identifier
+`fieldInstances`<br/><sup class="internal">*Only used by editor*</sup> | Array&nbsp;of&nbsp;[Field&nbsp;instance](#ldtk-FieldInstanceJson) | Array of field definitions
+
+<a id="ldtk-StructDefJson" name="ldtk-StructDefJson"></a>
+## 3.5. Struct definition  ![Generic badge](https://img.shields.io/badge/Added_1.3.4-gray.svg) 
+Value | Type | Description
+-- | -- | --
+`identifier` | String | User defined unique identifier
+`uid` | Int | Unique Int identifier
+`fieldDefs`<br/><sup class="internal">*Only used by editor*</sup> | Array&nbsp;of&nbsp;[Field&nbsp;definition](#ldtk-FieldDefJson) | Array of field definitions
+`tags`<br/><sup class="internal">*Only used by editor*</sup> | Array&nbsp;of&nbsp;String | An array of strings that classifies this entity

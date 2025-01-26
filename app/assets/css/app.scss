@@ -7225,7 +7225,7 @@ canvas#webgl {
 			flex: 1 0 100%;
 		}
 
-		*[class*="F_"],
+		*:not(.fieldInstanceEditor>*)[class*="F_"],
 		&.type-level .onlyEntity,
 		&.type-entity .onlyLevel,
 		&.type-struct .onlyEntity,

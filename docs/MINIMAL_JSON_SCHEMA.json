@@ -115,6 +115,9 @@
 					"TocInstanceData": {
 						"$ref": "#/otherTypes/TocInstanceData"
 					},
+					"StructDef": {
+						"$ref": "#/otherTypes/StructDef"
+					},
 					"NeighbourLevel": {
 						"$ref": "#/otherTypes/NeighbourLevel"
 					},
@@ -126,6 +129,9 @@
 					},
 					"EntityReferenceInfos": {
 						"$ref": "#/otherTypes/EntityReferenceInfos"
+					},
+					"StructInstance": {
+						"$ref": "#/otherTypes/StructInstance"
 					},
 					"TileCustomMetadata": {
 						"$ref": "#/otherTypes/TileCustomMetadata"
@@ -439,6 +445,7 @@
 				"externalEnums",
 				"layers",
 				"levelFields",
+				"structs",
 				"tilesets"
 			],
 			"additionalProperties": false,
@@ -447,6 +454,15 @@
 					"description": "All tilesets",
 					"items": {
 						"$ref": "#/otherTypes/TilesetDef"
+					},
+					"type": [
+						"array"
+					]
+				},
+				"structs": {
+					"description": "All structs definitions, including their custom fields",
+					"items": {
+						"$ref": "#/otherTypes/StructDef"
 					},
 					"type": [
 						"array"
@@ -629,7 +645,7 @@
 					]
 				},
 				"tileRenderMode": {
-					"description": "An enum describing how the the Entity tile is rendered inside the Entity bounds. Possible values: `Cover`, `FitInside`, `Repeat`, `Stretch`, `FullSizeCropped`, `FullSizeUncropped`, `NineSlice`",
+					"description": "An enum describing how the Entity tile is rendered inside the Entity bounds. Possible values: `Cover`, `FitInside`, `Repeat`, `Stretch`, `FullSizeCropped`, `FullSizeUncropped`, `NineSlice`",
 					"enum": [
 						"Cover",
 						"FitInside",
@@ -895,6 +911,31 @@
 				"iids": {
 					"description": "IID information of this instance",
 					"$ref": "#/otherTypes/EntityReferenceInfos"
+				}
+			},
+			"type": [
+				"object"
+			]
+		},
+		"StructDef": {
+			"title": "Struct definition",
+			"required": [
+				"identifier",
+				"uid"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"uid": {
+					"description": "Unique Int identifier",
+					"type": [
+						"integer"
+					]
+				},
+				"identifier": {
+					"description": "User defined unique identifier",
+					"type": [
+						"string"
+					]
 				}
 			},
 			"type": [
@@ -1192,6 +1233,38 @@
 				},
 				"levelIid": {
 					"description": "IID of the Level containing the refered EntityInstance",
+					"type": [
+						"string"
+					]
+				}
+			},
+			"type": [
+				"object"
+			]
+		},
+		"StructInstance": {
+			"title": "Struct instances",
+			"required": [
+				"__identifier",
+				"defUid",
+				"iid"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"iid": {
+					"description": "Unique instance identifier",
+					"type": [
+						"string"
+					]
+				},
+				"defUid": {
+					"description": "Definition Unique Int identifier",
+					"type": [
+						"integer"
+					]
+				},
+				"__identifier": {
+					"description": "User defined unique identifier",
 					"type": [
 						"string"
 					]

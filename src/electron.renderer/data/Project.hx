@@ -1,5 +1,7 @@
 package data;
 
+import data.inst.StructInstance;
+
 class Project {
 	public static var DEFAULT_WORKSPACE_BG = dn.legacy.Color.hexToInt("#40465B");
 	public static var DEFAULT_LEVEL_BG = dn.legacy.Color.hexToInt("#696a79");
@@ -1165,6 +1167,20 @@ class Project {
 
 	/**  USED CHECKS  *****************************************/
 
+	public function isEnumDefUsedInStruct(enumDef:data.def.EnumDef,structDef: data.def.StructDef): Bool{
+		for( fd in structDef.fieldDefs )
+			switch fd.type {
+				case F_Enum(enumDefUid):
+					if( enumDefUid==enumDef.uid )
+						return true;
+				case F_Struct(structDefUid):
+					var ret = isEnumDefUsedInStruct(enumDef,defs.getStructDef(structDefUid));
+					if (ret == true) return true;
+				case _:
+			}
+		return false;
+	}
+
 	public function isEnumDefUsed(enumDef:data.def.EnumDef) {
 		for( ed in defs.entities )
 		for( fd in ed.fieldDefs )
@@ -1172,7 +1188,20 @@ class Project {
 				case F_Enum(enumDefUid):
 					if( enumDefUid==enumDef.uid )
 						return true;
-
+				case F_Struct(structDefUid):
+					var ret = isEnumDefUsedInStruct(enumDef,defs.getStructDef(structDefUid));
+					if (ret == true) return true;
+				case _:
+			}
+		for( sd in defs.structs )
+		for( fd in sd.fieldDefs )
+			switch fd.type {
+				case F_Enum(enumDefUid):
+					if( enumDefUid==enumDef.uid )
+						return true;
+				case F_Struct(structDefUid):
+					var ret = isEnumDefUsedInStruct(enumDef,defs.getStructDef(structDefUid));
+					if (ret == true) return true;
 				case _:
 			}
 
@@ -1200,7 +1229,37 @@ class Project {
 						return true;
 				case _:
 			}
+
+		for( sd in defs.structs )
+			for( fd in sd.fieldDefs )
+				switch fd.type {
+					case F_Struct(structDefUid):
+						if( structDefUid==structDef.uid )
+							return true;
+					case _:
+					}
+
 		
+		return false;
+	}
+
+	private function isEnumValueUsedInStruct(enumDef:data.def.EnumDef,val:String,struct:StructInstance): Bool{
+		for(fi in struct.fieldInstances){
+			switch fi.def.type{
+				case F_Enum(enumDefUid):
+					if( enumDefUid==enumDef.uid )
+						for(i in 0...fi.getArrayLength()) {
+							if( fi.getEnumValue(i)==val )
+								return true;
+						}
+				case F_Struct(structDefUid):
+					for(i in 0...fi.getArrayLength()){
+						var ret:Bool = isEnumValueUsedInStruct(enumDef,val,fi.getStructValue(i));
+						if(ret == true) return true;
+					}
+				case _:
+			}
+		}
 		return false;
 	}
 
@@ -1220,7 +1279,11 @@ class Project {
 								if( fi.getEnumValue(i)==val )
 									return true;
 							}
-
+					case F_Struct(structDefUid):
+						for(i in 0...fi.getArrayLength()){
+							var ret:Bool = isEnumValueUsedInStruct(enumDef,val,fi.getStructValue(i));
+							if(ret == true) return true;
+						}
 					case _:
 				}
 		}

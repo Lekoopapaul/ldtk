@@ -349,6 +349,12 @@ namespace ldtk
         public FieldDefinition[] LevelFields { get; set; }
 
         /// <summary>
+        /// All structs definitions, including their custom fields
+        /// </summary>
+        [JsonProperty("structs")]
+        public StructDefinition[] Structs { get; set; }
+
+        /// <summary>
         /// All tilesets
         /// </summary>
         [JsonProperty("tilesets")]
@@ -526,7 +532,7 @@ namespace ldtk
         public TilesetRectangle TileRect { get; set; }
 
         /// <summary>
-        /// An enum describing how the the Entity tile is rendered inside the Entity bounds. Possible
+        /// An enum describing how the Entity tile is rendered inside the Entity bounds. Possible
         /// values: `Cover`, `FitInside`, `Repeat`, `Stretch`, `FullSizeCropped`,
         /// `FullSizeUncropped`, `NineSlice`
         /// </summary>
@@ -735,7 +741,8 @@ namespace ldtk
 
         /// <summary>
         /// Internal enum representing the possible field types. Possible values: F_Int, F_Float,
-        /// F_String, F_Text, F_Bool, F_Color, F_Enum(...), F_Point, F_Path, F_EntityRef, F_Tile
+        /// F_String, F_Text, F_Bool, F_Color, F_Enum(...), F_Struct(...), F_Point, F_Path,
+        /// F_EntityRef, F_Tile
         /// </summary>
         [JsonProperty("type")]
         public string FieldDefinitionType { get; set; }
@@ -1354,6 +1361,33 @@ namespace ldtk
         public long Uid { get; set; }
     }
 
+    public partial class StructDefinition
+    {
+        /// <summary>
+        /// Array of field definitions
+        /// </summary>
+        [JsonProperty("fieldDefs")]
+        public FieldDefinition[] FieldDefs { get; set; }
+
+        /// <summary>
+        /// User defined unique identifier
+        /// </summary>
+        [JsonProperty("identifier")]
+        public string Identifier { get; set; }
+
+        /// <summary>
+        /// An array of strings that classifies this entity
+        /// </summary>
+        [JsonProperty("tags")]
+        public string[] Tags { get; set; }
+
+        /// <summary>
+        /// Unique Int identifier
+        /// </summary>
+        [JsonProperty("uid")]
+        public long Uid { get; set; }
+    }
+
     /// <summary>
     /// The `Tileset` definition is the most important part among project definitions. It
     /// contains some extra informations about each integrated tileset. If you only had to parse
@@ -1558,6 +1592,12 @@ namespace ldtk
 
         [JsonProperty("NeighbourLevel", NullValueHandling = NullValueHandling.Ignore)]
         public NeighbourLevel NeighbourLevel { get; set; }
+
+        [JsonProperty("StructDef", NullValueHandling = NullValueHandling.Ignore)]
+        public StructDefinition StructDef { get; set; }
+
+        [JsonProperty("StructInstance", NullValueHandling = NullValueHandling.Ignore)]
+        public StructInstances StructInstance { get; set; }
 
         [JsonProperty("TableOfContentEntry", NullValueHandling = NullValueHandling.Ignore)]
         public LdtkTableOfContentEntry TableOfContentEntry { get; set; }
@@ -2205,6 +2245,33 @@ namespace ldtk
         public long? LevelUid { get; set; }
     }
 
+    public partial class StructInstances
+    {
+        /// <summary>
+        /// User defined unique identifier
+        /// </summary>
+        [JsonProperty("__identifier")]
+        public string Identifier { get; set; }
+
+        /// <summary>
+        /// Definition Unique Int identifier
+        /// </summary>
+        [JsonProperty("defUid")]
+        public long DefUid { get; set; }
+
+        /// <summary>
+        /// Array of field definitions
+        /// </summary>
+        [JsonProperty("fieldInstances")]
+        public FieldInstance[] FieldInstances { get; set; }
+
+        /// <summary>
+        /// Unique instance identifier
+        /// </summary>
+        [JsonProperty("iid")]
+        public string Iid { get; set; }
+    }
+
     public partial class LdtkTableOfContentEntry
     {
         [JsonProperty("identifier")]
@@ -2355,7 +2422,7 @@ namespace ldtk
     public enum RenderMode { Cross, Ellipse, Rectangle, Tile };
 
     /// <summary>
-    /// An enum describing how the the Entity tile is rendered inside the Entity bounds. Possible
+    /// An enum describing how the Entity tile is rendered inside the Entity bounds. Possible
     /// values: `Cover`, `FitInside`, `Repeat`, `Stretch`, `FullSizeCropped`,
     /// `FullSizeUncropped`, `NineSlice`
     /// </summary>

@@ -1,5 +1,6 @@
 package ui;
 
+import data.inst.StructInstance;
 import js.Browser;
 import data.def.FieldDef;
 
@@ -17,7 +18,7 @@ class FieldDefsForm {
 	var parentType : FieldParentType;
 	public var jWrapper : js.jquery.JQuery;
 	var jList(get,never) : js.jquery.JQuery; inline function get_jList() return jWrapper.find("ul.fieldList");
-	var jForm(get,never) : js.jquery.JQuery; inline function get_jForm() return jWrapper.find("dl.form");
+	var jForm(get,never) : js.jquery.JQuery; inline function get_jForm() return jWrapper.find("dl.form:not(.fieldInstanceEditor)");
 	var jButtons(get,never) : js.jquery.JQuery; inline function get_jButtons() return jList.siblings(".buttons");
 	var fieldDefs : Array<FieldDef>;
 	var curField : Null<FieldDef>;
@@ -44,7 +45,7 @@ class FieldDefsForm {
 		});
 
 		JsTools.parseComponents( jButtons );
-
+		
 		updateList();
 		updateForm();
 	}
@@ -930,7 +931,7 @@ class FieldDefsForm {
 				});
 
 			case F_Struct(name):
-				 
+				
 
 			case F_Color:
 				var defInput = jForm.find("input[name=cDef]");
@@ -962,7 +963,7 @@ class FieldDefsForm {
 		var i = Input.linkToHtmlInput( curField.exportToToc, jForm.find("input#exportToToc") );
 		i.onChange = onFieldChange;
 		i.setEnabled( isEntityField() && getEntityParent().exportToToc );
-		Browser.console.log(isEntityField() && getEntityParent().exportToToc);
+		
 		// Searchable
 		var i = Input.linkToHtmlInput( curField.searchable, jForm.find("input#searchable") );
 		i.onChange = onFieldChange;

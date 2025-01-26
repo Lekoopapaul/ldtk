@@ -17,7 +17,7 @@ class FieldInstance {
 	private function new(p:Project, fieldDefUid:Int) {
 		_project = p;
 		defUid = fieldDefUid;
-		internalValues = [];
+		internalValues = [null];
 	}
 
 	@:keep public function toString() {
@@ -39,22 +39,26 @@ class FieldInstance {
 			for( jsonVal in JsonTools.readArray(json.realEditorValues) ) {
 				var val = JsonTools.readEnum(ValueWrapper, jsonVal, true);
 
-				if( fi.def.type==F_Text ) // Restore end-of-lines
+				if(fi.def != null){
+					if( fi.def.type==F_Text ) // Restore end-of-lines
+						switch val {
+							case null:
+							case V_String(v):
+								v = JsonTools.unescapeString(v);
+								val = V_String(v);
+							case _:
+						}
+						if(fi.def.type != null)
+					if(fi.def.type.getIndex() == ldtk.Json.FieldType.F_Struct(null).getIndex())
 					switch val {
-						case null:
-						case V_String(v):
-							v = JsonTools.unescapeString(v);
-							val = V_String(v);
-						case _:
-					}
-				if(fi.def.type.getIndex() == ldtk.Json.FieldType.F_Struct(null).getIndex())
-				switch val {
-						case null:
-						case V_String(v):
-							v = JsonTools.unescapeString(v);
-							val = V_Struct(StructInstance.fromJson(project,haxe.Json.parse(v)));
-						case _:
-					}
+							case null:
+							case V_String(v):
+								v = JsonTools.unescapeString(v);
+								Browser.console.log(v);
+								val = V_Struct(haxe.Json.parse(v));
+							case _:
+						}
+				}
 					
 				fi.internalValues.push( val );
 			}
@@ -90,7 +94,8 @@ class FieldInstance {
 					case V_String(v):
 						JsonTools.writeEnum( V_String( JsonTools.escapeString(v) ), true);
 					case V_Struct(v):
-						JsonTools.writeEnum(V_String(JsonTools.escapeString(haxe.Json.stringify(v.toJson()))),true);
+						JsonTools.writeEnum(V_Struct(v),true);
+						//JsonTools.writeEnum(V_String(JsonTools.escapeString(haxe.Json.stringify(v.toJson()))),true);
 				}
 			}),
 
@@ -148,6 +153,7 @@ class FieldInstance {
 
 	function setInternal(arrayIdx:Int, fv:Null<ValueWrapper>) {
 		internalValues[arrayIdx] = fv;
+		
 	}
 
 	public function isUsingDefault(arrayIdx:Int) {
@@ -191,10 +197,16 @@ class FieldInstance {
 				}
 			case F_Struct(structDefUid):
 				raw = StringTools.trim(raw);
+				
 				if(raw.length == 0)
 					setInternal(arrayIdx,null);
 				else 
-					setInternal(arrayIdx,V_Struct(StructInstance.fromJson(_project,haxe.Json.parse(raw))));
+				{
+					
+					setInternal(arrayIdx,V_Struct(haxe.Json.parse(raw)));
+					
+				}
+				
 
 			case F_Color:
 				setInternal( arrayIdx, raw==null ? null : V_Int(dn.legacy.Color.hexToInt(raw)) );
@@ -785,7 +797,7 @@ class FieldInstance {
 	public function getStructValue(arrayIdx:Int) : Null<StructInstance> {
 		require( F_Struct(null) );
 		return isUsingDefault(arrayIdx) ? def.getStructDefault() : switch internalValues[arrayIdx] {
-			case V_Struct(v): v;
+			case V_Struct(v): StructInstance.fromJson(_project,v);
 			case _: throw "unexpected";
 		}
 	}
@@ -885,12 +897,21 @@ class FieldInstance {
 						anyChange = true;
 					}
 			case F_Struct(structIid):
-				for(i in 0...getArrayLength())
+				var i = 0;
+				while( i<getArrayLength() )
+				{
 					if(getStructValue(i)!= null && getStructValue(i).def != null)
 						anyChange = getStructValue(i).tidy(_project);
 					else
-						parseValue(i,null);
+					{
+						if( def.isArray ) {
+							removeArrayValue(i);
+							i--;
+						}
 						anyChange = true;
+					}
+					i++;
+				}
 		}
 
 		return anyChange;

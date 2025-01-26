@@ -9,6 +9,7 @@ import data.inst.FieldInstance;
 enum FormRelatedInstance {
 	Entity(ei:data.inst.EntityInstance);
 	Level(l:data.Level);
+	Field(f:data.def.FieldDef);
 }
 
 class FieldInstancesForm {
@@ -45,7 +46,7 @@ class FieldInstancesForm {
 
 	function hideInputIfDefault(arrayIdx:Int, jElements:js.jquery.JQuery, fi:data.inst.FieldInstance, isRequired=false) {
 		// NOTE: jElements can be a single DOM element, or multiple ones (eg. an Int value with prefix/suffix)
-
+		
 		jElements.off(".def").removeClass("usingDefault");
 
 		if( fi.isUsingDefault(arrayIdx) ) {
@@ -127,6 +128,7 @@ class FieldInstancesForm {
 				ev.preventDefault();
 			});
 		}
+			
 	}
 
 	function markError(e:js.jquery.JQuery, ?customClass="required") {
@@ -149,7 +151,7 @@ class FieldInstancesForm {
 				// Prefix
 				if( fi.def.editorTextPrefix!=null && !fi.isUsingDefault(arrayIdx) )
 					jTarget.append('<span class="prefix">${fi.def.editorTextPrefix}</span>');
-
+				
 				var jInput = new J("<input/>");
 				jInput.attr("id",domId);
 				jInput.appendTo(jTarget);
@@ -294,8 +296,7 @@ class FieldInstancesForm {
 				hideInputIfDefault(arrayIdx, jText, fi);
 
 			case F_Struct(structDefUid):
-				if( fi.def.editorTextPrefix!=null && !fi.isUsingDefault(arrayIdx) )
-					jTarget.append('<span class="prefix">${fi.def.editorTextPrefix}</span>');
+				jTarget.append('<span class="prefix">${fi.def.editorTextPrefix}</span>');
 
 				var def = project.defs.getStructDef(structDefUid);
 				
@@ -305,23 +306,18 @@ class FieldInstancesForm {
 					ins = new StructInstance(project,structDefUid,project.generateUniqueId_UUID());
 					fi.parseValue(arrayIdx,haxe.Json.stringify(ins.toJson()));
 				}
-
 				
-
 				var fieldForm = new FieldInstancesForm();
 				fieldForm.jWrapper.appendTo(jTarget);
 				fieldForm.onChange = () ->{
-					
-					for(instance in ins.fieldInstances){
-						var fd = def.fieldDefs.filter(f -> f.uid == instance.defUid)[0];
-						ins.fieldInstances[instance.defUid] = fieldForm.fieldInstGetter(fd);
-						fi.parseValue(arrayIdx,haxe.Json.stringify(ins.toJson()));
-					}
+					fi.parseValue(arrayIdx,haxe.Json.stringify(ins.toJson()));
 					onFieldChange(fi);
 					
 				};
 				fieldForm.use(relatedInstance,def.fieldDefs,fd -> ins.getFieldInstance(fd,true));
-				
+
+				jTarget.append('<span class="suffix">${fi.def.editorTextSuffix}</span>');
+			
 
 			case F_Point:
 				if( fi.valueIsNull(arrayIdx) && !fi.def.canBeNull || !fi.def.isArray ) {
@@ -675,6 +671,7 @@ class FieldInstancesForm {
 		return switch relatedInstance {
 			case Entity(ei): ei;
 			case Level(l): null;
+			case Field(f): null;
 		}
 	}
 
@@ -682,6 +679,7 @@ class FieldInstancesForm {
 		return switch relatedInstance {
 			case Entity(ei): ei.def.identifier;
 			case Level(l): l.identifier;
+			case Field(f): f.identifier;
 		}
 	}
 
@@ -689,6 +687,7 @@ class FieldInstancesForm {
 		return switch relatedInstance {
 			case Entity(ei): ei.getCx( editor.curLayerDef );
 			case Level(l): 0; // N/A
+			case Field(f): 0; // N/A
 		}
 	}
 
@@ -696,6 +695,7 @@ class FieldInstancesForm {
 		return switch relatedInstance {
 			case Entity(ei): ei.getCy( editor.curLayerDef );
 			case Level(l): 0; // N/A
+			case Field(f): 0; // N/A
 		}
 	}
 
@@ -703,6 +703,7 @@ class FieldInstancesForm {
 		return switch relatedInstance {
 			case Entity(ei): ei.getSmartColor(true);
 			case Level(l): l.getBgColor();
+			case Field(f): ColorEnum.Black; // N/A
 		}
 	}
 
@@ -808,17 +809,18 @@ class FieldInstancesForm {
 			Editor.ME.clearSpecialTool();
 
 		var jPrevFocus = jWrapper.find("input:focus");
-
+		
 		onBeforeRender();
 		renderForm();
 		switch relatedInstance {
 			case Entity(ei): editor.ge.emit( EntityFieldInstanceChanged(ei,fi) );
 			case Level(l): editor.ge.emit( LevelFieldInstanceChanged(l,fi) );
+			case Field(f): editor.ge.emit(FieldDefaultFieldInstanceChanged(f,fi));
 		}
 		onChange();
 
 		LOG.userAction('Changed field: $fi');
-
+		
 		// Re-focus input
 		if( jPrevFocus.length>0 ) {
 			if( jPrevFocus.attr("id")!=null )
@@ -826,6 +828,7 @@ class FieldInstancesForm {
 			else if( jPrevFocus.attr("name")!=null )
 				jWrapper.find("[name="+jPrevFocus.attr("id")+"]").focus();
 		}
+		
 	}
 
 	public dynamic function onBeforeRender() {}
@@ -859,6 +862,8 @@ class FieldInstancesForm {
 							case Level(l):
 								var p = new ui.modal.panel.EditLevelFieldDefs();
 								p.selectField(fd);
+							case Field(f):
+								
 						}
 					},
 				}
